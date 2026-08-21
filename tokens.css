@@ -1,0 +1,99 @@
+/* Hallmark · macrostructure: Workbench · tone: utilitarian-technical · anchor hue: cobalt · theme: Cobalt · genre: modern-minimal · audience: 内部内容团队 · use: 推进视频生产任务并追溯资产 · nav: N3 Side Rail (left, 20ch, filled-bar) · footer: Ft2 Inline Rule (spaced, middot) · F3: 4 columns/every-row/tabular · F4: 01 numbering/vertical/line · enrichment: none · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+
+:root {
+  color-scheme: light;
+
+  --font-display: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-body: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", monospace;
+
+  --color-paper: oklch(98.5% 0.004 250);
+  --color-paper-raised: oklch(100% 0.004 250);
+  --color-paper-subtle: oklch(96.8% 0.007 250);
+  --color-paper-strong: oklch(94.5% 0.009 250);
+  --color-ink: oklch(22% 0.022 258);
+  --color-ink-2: oklch(32% 0.019 257);
+  --color-neutral: oklch(47% 0.014 255);
+  --color-muted: oklch(57% 0.012 255);
+  --color-rule: oklch(88% 0.012 252);
+  --color-rule-strong: oklch(79% 0.018 252);
+  --color-accent: oklch(54% 0.205 256);
+  --color-accent-hover: oklch(49% 0.205 256);
+  --color-accent-soft: oklch(94% 0.03 256);
+  --color-accent-ink: oklch(99% 0.004 250);
+  --color-focus: oklch(49% 0.21 256);
+  --color-sidebar: oklch(24% 0.031 253);
+  --color-sidebar-2: oklch(29% 0.034 253);
+  --color-sidebar-ink: oklch(94% 0.012 250);
+  --color-sidebar-muted: oklch(77% 0.018 250);
+  --color-graphite: oklch(20% 0.018 260);
+  --color-graphite-2: oklch(27% 0.019 260);
+  --color-graphite-ink: oklch(96% 0.008 250);
+  --color-success: oklch(54% 0.145 145);
+  --color-success-soft: oklch(95% 0.032 145);
+  --color-warning: oklch(61% 0.145 75);
+  --color-warning-soft: oklch(96% 0.035 75);
+  --color-error: oklch(55% 0.195 28);
+  --color-error-soft: oklch(95% 0.035 28);
+  --color-info: oklch(55% 0.12 215);
+  --color-info-soft: oklch(95% 0.025 215);
+  --color-overlay: oklch(16% 0.02 258 / 0.38);
+  --color-shadow: oklch(22% 0.022 258 / 0.08);
+  --color-shadow-soft: oklch(22% 0.022 258 / 0.045);
+  --color-transparent: transparent;
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+
+  --line-tight: 1.15;
+  --line-ui: 1.35;
+  --line-body: 1.58;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-round: 50%;
+
+  --control-height: 2.75rem;
+  --sidebar-width: 16.5rem;
+  --topbar-height: 4.5rem;
+  --content-max: 100rem;
+  --drawer-width: 38rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  --shadow-whisper: 0 1px 2px var(--color-shadow-soft);
+  --shadow-panel: 0 1rem 3rem var(--color-shadow);
+
+  --z-base: 1;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+}
