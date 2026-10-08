@@ -1,0 +1,10 @@
+{
+  "name": "heshu-video-p0-prototype",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "合数流量运营支持系统 · 视频管理 P0 交互原型（纯静态，无构建依赖）",
+  "scripts": {
+    "dev": "node ./dev-server.mjs"
+  }
+}

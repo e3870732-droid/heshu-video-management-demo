@@ -41,6 +41,10 @@
       <symbol id="i-history" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5"/><path d="M4 4v4.5h4.5M12 8v5l3 2"/></symbol>
       <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></symbol>
       <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M8 17v-5M13 17V8M18 17v-8"/></symbol>
+      <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></symbol>
       <symbol id="i-command" viewBox="0 0 24 24"><path d="M9 6V5a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v14a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></symbol>
     </svg>
 
@@ -49,8 +53,8 @@
         <div class="brand">
           <span class="brand__mark" aria-hidden="true">合</span>
           <div class="brand__copy">
-            <strong>合数流量运营</strong>
-            <span>视频生产工作台</span>
+            <strong>合数流量运营支持系统</strong>
+            <span>视频管理 P0 · 交互原型</span>
           </div>
         </div>
 
@@ -60,28 +64,43 @@
         </div>
 
         <nav class="primary-nav" aria-label="主导航">
-          <span class="nav-section-label">生产工作区</span>
           <button class="nav-item is-active" type="button" data-view="workbench" aria-current="page">
-            <svg aria-hidden="true"><use href="#i-grid"></use></svg><span>我的工作台</span>
+            <svg aria-hidden="true"><use href="#i-home"></use></svg><span>工作台</span>
           </button>
-          <button class="nav-item" type="button" data-view="topics">
-            <svg aria-hidden="true"><use href="#i-file"></use></svg><span>选题脚本</span>
+
+          <div class="nav-group" data-nav-group="materials">
+            <button class="nav-item nav-group__parent" type="button" data-view="materials" data-material-type="ALL" aria-expanded="true">
+              <svg aria-hidden="true"><use href="#i-layers"></use></svg><span>内容资产</span><span class="nav-count" data-count="materials">0</span>
+              <svg class="nav-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+            </button>
+            <div class="nav-group__children">
+              <button class="nav-item nav-item--child" type="button" data-view="library"><span>素材库</span></button>
+              <button class="nav-item nav-item--child" type="button" data-view="materials" data-material-type="FINAL"><span>成片</span></button>
+              <button class="nav-item nav-item--child" type="button" data-view="materials" data-material-type="EXTERNAL"><span>外部素材</span></button>
+            </div>
+          </div>
+
+          <div class="nav-group" data-nav-group="production">
+            <button class="nav-item nav-group__parent" type="button" aria-expanded="true">
+              <svg aria-hidden="true"><use href="#i-film"></use></svg><span>剪辑中心</span>
+              <svg class="nav-chevron" aria-hidden="true"><use href="#i-chevron"></use></svg>
+            </button>
+            <div class="nav-group__children">
+              <button class="nav-item nav-item--child" type="button" data-view="topics"><span>选题脚本</span></button>
+              <button class="nav-item nav-item--child" type="button" data-view="shoots"><span>拍摄任务</span><span class="nav-count" data-count="shoots">0</span></button>
+              <button class="nav-item nav-item--child" type="button" data-view="edits"><span>剪辑任务</span><span class="nav-count" data-count="edits">0</span></button>
+              <button class="nav-item nav-item--child" type="button" data-view="finals"><span>视频成片</span><span class="nav-count" data-count="finals">0</span></button>
+            </div>
+          </div>
+
+          <button class="nav-item" type="button" disabled title="实时监控未纳入视频管理 P0 原型范围">
+            <svg aria-hidden="true"><use href="#i-monitor"></use></svg><span>实时监控</span><span class="nav-tag">未纳入 P0</span>
           </button>
-          <button class="nav-item" type="button" data-view="shoots">
-            <svg aria-hidden="true"><use href="#i-camera"></use></svg><span>拍摄任务</span><span class="nav-count" data-count="shoots">0</span>
+          <button class="nav-item" type="button" disabled title="数据洞察未纳入视频管理 P0 原型范围">
+            <svg aria-hidden="true"><use href="#i-chart"></use></svg><span>数据洞察</span><span class="nav-tag">未纳入 P0</span>
           </button>
-          <button class="nav-item" type="button" data-view="edits">
-            <svg aria-hidden="true"><use href="#i-scissors"></use></svg><span>剪辑任务</span><span class="nav-count" data-count="edits">0</span>
-          </button>
-          <button class="nav-item" type="button" data-view="finals">
-            <svg aria-hidden="true"><use href="#i-film"></use></svg><span>视频成片</span><span class="nav-count" data-count="finals">0</span>
-          </button>
-          <span class="nav-section-label">内容与资产</span>
-          <button class="nav-item" type="button" data-view="materials">
-            <svg aria-hidden="true"><use href="#i-layers"></use></svg><span>内容素材库</span><span class="nav-count" data-count="materials">0</span>
-          </button>
-          <button class="nav-item" type="button" data-view="raws">
-            <svg aria-hidden="true"><use href="#i-folder"></use></svg><span>视频原片</span>
+          <button class="nav-item" type="button" disabled title="配置管理未纳入视频管理 P0 原型范围">
+            <svg aria-hidden="true"><use href="#i-gear"></use></svg><span>配置管理</span><span class="nav-tag">未纳入 P0</span>
           </button>
         </nav>
 
@@ -112,6 +131,7 @@
                 <option value="editor">剪辑</option>
                 <option value="buyer">投手</option>
                 <option value="operator">运营</option>
+                <option value="analyst">数据分析师</option>
               </select>
             </label>
             <button class="command-button" id="commandButton" type="button" aria-haspopup="dialog">

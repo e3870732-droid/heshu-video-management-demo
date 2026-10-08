@@ -7,17 +7,18 @@
     director: { label: "编导", user: "李斯仪" },
     editor: { label: "剪辑", user: "陈琳" },
     buyer: { label: "投手", user: "周嘉" },
-    operator: { label: "运营", user: "许澄" }
+    operator: { label: "运营", user: "许澄" },
+    analyst: { label: "数据分析师", user: "方衍" }
   };
 
   const viewMeta = {
-    workbench: { label: "我的工作台", kicker: "WORKBENCH" },
+    workbench: { label: "工作台", kicker: "WORKBENCH" },
     shoots: { label: "拍摄任务", kicker: "SHOOT TASKS" },
     edits: { label: "剪辑任务", kicker: "EDIT TASKS" },
     finals: { label: "视频成片", kicker: "FINAL ASSETS" },
-    materials: { label: "内容素材库", kicker: "CONTENT MATERIALS" },
-    topics: { label: "选题脚本", kicker: "TOPICS & SCRIPTS" },
-    raws: { label: "视频原片", kicker: "RAW ASSETS" }
+    materials: { label: "内容资产", kicker: "CONTENT MATERIALS" },
+    library: { label: "素材库", kicker: "MEDIA LIBRARY" },
+    topics: { label: "选题脚本", kicker: "TOPICS & SCRIPTS" }
   };
 
   const shootStatus = {
@@ -53,6 +54,8 @@
     REUPLOAD_REQUIRED: { label: "待重新上传", tone: "warning" },
     INVALID: { label: "平台素材失效", tone: "error" }
   };
+
+  const rejectReasonCategories = ["标题与文案", "画面内容", "音频与版权", "行业资质", "夸大宣传 / 承诺", "落地页与链接", "其他"];
 
   const priorityMeta = {
     URGENT: { label: "紧急", tone: "error" },
@@ -118,12 +121,18 @@
     publish: ["buyer", "operator"],
     audit: ["buyer", "operator"],
     reopenAudit: ["director", "buyer", "operator"],
+    invalidateAudit: ["director", "buyer", "operator"],
+    fillShootInfo: ["director"],
+    editScript: ["director"],
     createTopic: ["director"],
     organizeMaterial: ["director", "buyer", "operator"],
     createCollection: ["director", "buyer", "operator"],
     createReedit: ["director", "buyer", "operator"],
     restrictMaterial: ["director", "operator"],
-    registerExternalMaterial: ["director", "operator"]
+    registerExternalMaterial: ["director", "operator"],
+    manageVersion: ["director"],
+    gradeVersion: ["director", "analyst"],
+    editAnalysis: ["director", "analyst"]
   };
 
   const seedState = () => ({
@@ -151,6 +160,22 @@
           { title: "兴趣班最容易踩的三个坑", opening: "兴趣班不是报得越多越好。", editNote: "前 3 秒保留问题句，字幕突出“三个坑”。" },
           { title: "家长最常见的跟风选择", opening: "别人家孩子报什么，不等于你家也该报。", editNote: "用两段原片交叉剪，节奏偏快。" },
           { title: "怎么判断孩子真的感兴趣", opening: "先别看孩子说喜不喜欢，看这三个行为。", editNote: "行为关键词分条展示。" }
+        ],
+        versions: [
+          {
+            id: "SV-0729-01",
+            name: "0729 原版",
+            date: "2026-07-29",
+            grade: "S",
+            note: "首版拍摄，跑量最好。",
+            analysis: "开头用反认知提问留人，前 3 秒完播显著高于均值；中段案例偏长，后续版本建议压缩。",
+            comments: [
+              { id: "C-0729-01", author: "方衍", role: "analyst", at: "2026-08-02 15:20", text: "原版 3s 播放率是近一个月选题内最高，建议保留开头结构。" },
+              { id: "C-0729-02", author: "李斯仪", role: "director", at: "2026-08-03 10:05", text: "同意，改开头版只动前 3 秒，其余结构不动。" }
+            ],
+            scriptIndexes: [0, 1, 2]
+          },
+          { id: "SV-0729-02", name: "0806 直播间改开头版", date: "2026-08-06", grade: "A", note: "更换开头钩子复拍。", analysis: "", comments: [], scriptIndexes: [0] }
         ]
       },
       {
@@ -167,7 +192,7 @@
         wardrobe: "深蓝针织",
         equipment: "双机位 + 提词器",
         scriptCount: 2,
-        rawCount: 3,
+        rawCount: 5,
         note: "需要优先剪出“只看排名”这一条。",
         scripts: [
           { title: "只看学校排名为什么会选错", opening: "排名不是没用，但它不能替你做决定。", editNote: "保留完整论证，控制 60 秒内。" },
@@ -192,6 +217,27 @@
         note: "等待场地确认。",
         scripts: [
           { title: "开学前四周该做什么", opening: "最后四周，不要再塞新计划。", editNote: "按周拆分，节奏稳。" }
+        ]
+      },
+      {
+        id: "ST-0718-01",
+        name: "0718 拍摄任务｜暑期计划减法",
+        topicId: "TP-250718-01",
+        topic: "暑期计划减法",
+        status: "COMPLETED",
+        director: "李斯仪",
+        ip: "状元阿留",
+        location: "深圳直播间",
+        date: "2026-07-18",
+        scenes: "直播间",
+        wardrobe: "白色 T 恤",
+        equipment: "A 机位",
+        scriptCount: 2,
+        rawCount: 3,
+        note: "历史任务，数据已归档。",
+        scripts: [
+          { title: "暑期计划做不下去，先删掉这三件事", opening: "计划越满，越容易一件事都做不完。", editNote: "节奏快，删减法三点用字幕卡。" },
+          { title: "暑期清单怎么排优先级", opening: "先排不能动的，再排想做的。", editNote: "控制在 45 秒。" }
         ]
       }
     ],
@@ -281,7 +327,7 @@
         rawIds: ["RW-0729-01", "RW-0729-02"],
         platforms: [
           { id: "PM-001", platform: "抖音", account: "阿留状元教育", materialId: "DY-DEMO-63591358485", url: "", status: "APPROVED", publishedAt: "2026-08-19 16:00", reason: "" },
-          { id: "PM-002", platform: "小红书", account: "阿留家庭教育", materialId: "XHS-DEMO-42064447957", url: "", status: "REJECTED", publishedAt: "2026-08-19 16:15", reason: "标题承诺表达需调整，等待人工确认。" }
+          { id: "PM-002", platform: "小红书", account: "阿留家庭教育", materialId: "XHS-DEMO-42064447957", url: "", status: "REJECTED", publishedAt: "2026-08-19 16:15", reasonCategory: "标题与文案", reason: "标题承诺表达需调整，等待人工确认。", screenshot: "xhs-reject-42064447957.png" }
         ]
       },
       {
@@ -299,19 +345,28 @@
       }
     ],
     topics: [
-      { id: "TP-250729-01", title: "幼儿园兴趣班避坑", topicType: "HOME", businessLines: ["教育规划"], product: "家庭教育", ip: "阿留老师", owner: "李斯仪", scriptCount: 3, finalCount: 1, updatedAt: "2026-08-20 14:10" },
-      { id: "TP-250819-02", title: "留学家长常见决策误区", topicType: "PAID", businessLines: ["教育规划", "大场"], product: "留学规划", ip: "阿留老师", owner: "李斯仪", scriptCount: 2, finalCount: 0, updatedAt: "2026-08-20 08:45" },
-      { id: "TP-250820-03", title: "暑期收尾规划", topicType: "HOME", businessLines: ["教育规划"], product: "家庭教育", ip: "状元阿留", owner: "李斯仪", scriptCount: 1, finalCount: 0, updatedAt: "2026-08-20 09:00" },
-      { id: "TP-250718-01", title: "暑期计划减法", topicType: "PAID", businessLines: ["教育规划", "豆神双语"], product: "家庭教育", ip: "状元阿留", owner: "李斯仪", scriptCount: 2, finalCount: 1, updatedAt: "2026-08-18 15:20" }
+      { id: "TP-250729-01", title: "幼儿园兴趣班避坑", topicType: "HOME", businessLines: ["教育规划"], product: "家庭教育", ip: "阿留老师", owner: "李斯仪", scriptCount: 3, finalCount: 1, updatedAt: "2026-08-20 14:10", tags: ["幼儿教育", "学习习惯"], comments: [
+        { id: "C-T-001", author: "方衍", role: "analyst", at: "2026-08-20 18:40", text: "该选题千川累计 ROI 2.1，建议下个月继续迭代同主题变体。" },
+        { id: "C-T-002", author: "李斯仪", role: "director", at: "2026-08-20 19:02", text: "收到，下周排一期“兴趣班退费话术”方向的衍生选题。" }
+      ] },
+      { id: "TP-250819-02", title: "留学家长常见决策误区", topicType: "PAID", businessLines: ["教育规划", "大场"], product: "留学规划", ip: "阿留老师", owner: "李斯仪", scriptCount: 2, finalCount: 0, updatedAt: "2026-08-20 08:45", tags: ["升学规划"] },
+      { id: "TP-250820-03", title: "暑期收尾规划", topicType: "HOME", businessLines: ["教育规划"], product: "家庭教育", ip: "状元阿留", owner: "李斯仪", scriptCount: 1, finalCount: 0, updatedAt: "2026-08-20 09:00", tags: ["学习习惯", "亲子沟通"] },
+      { id: "TP-250718-01", title: "暑期计划减法", topicType: "PAID", businessLines: ["教育规划", "豆神双语"], product: "家庭教育", ip: "状元阿留", owner: "李斯仪", scriptCount: 2, finalCount: 1, updatedAt: "2026-08-18 15:20", tags: ["学习习惯", "亲子沟通"] }
     ],
     raws: [
-      { id: "RW-0729-01", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_机位A_镜01.mp4", scene: "办公桌正面", camera: "A 机位", shot: "镜 01", size: "1.8 GB", duration: "00:08:12", usedBy: ["FN-0729-03"], uploadedAt: "2026-07-29 17:20" },
-      { id: "RW-0729-02", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_机位B_镜01.mp4", scene: "办公桌侧面", camera: "B 机位", shot: "镜 01", size: "1.3 GB", duration: "00:08:18", usedBy: ["FN-0729-03"], uploadedAt: "2026-07-29 17:24" },
-      { id: "RW-0729-03", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_机位A_镜02.mp4", scene: "白板区", camera: "A 机位", shot: "镜 02", size: "1.1 GB", duration: "00:05:48", usedBy: [], uploadedAt: "2026-07-29 17:31" },
-      { id: "RW-0819-01", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学排名_机位A_镜01.mp4", scene: "书架区", camera: "A 机位", shot: "镜 01", size: "2.2 GB", duration: "00:11:26", usedBy: [], uploadedAt: "2026-08-19 18:05" },
-      { id: "RW-0819-02", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学排名_机位B_镜01.mp4", scene: "书架区", camera: "B 机位", shot: "镜 01", size: "1.7 GB", duration: "00:11:31", usedBy: [], uploadedAt: "2026-08-19 18:08" },
-      { id: "RW-0819-03", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学国家专业_机位A_镜02.mp4", scene: "书架区", camera: "A 机位", shot: "镜 02", size: "1.9 GB", duration: "00:09:50", usedBy: [], uploadedAt: "2026-08-19 18:13" },
-      { id: "RW-0718-01", shootId: "ST-0718-01", fileName: "0718_状元阿留_暑期规划_机位A_镜01.mp4", scene: "直播间", camera: "A 机位", shot: "镜 01", size: "1.6 GB", duration: "00:07:12", usedBy: ["FN-0718-02"], uploadedAt: "2026-07-18 16:40" }
+      { id: "RW-0729-01", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_机位A_镜01.mp4", scene: "办公桌正面", camera: "A 机位", shot: "镜 01", device: "CAMERA", deviceNo: "CAM-01", angle: "正面", wardrobe: "浅灰衬衫", size: "1.8 GB", duration: "00:08:12", usedBy: ["FN-0729-03"], uploadedAt: "2026-07-29 17:20" },
+      { id: "RW-0729-02", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_机位B_镜01.mp4", scene: "办公桌侧面", camera: "B 机位", shot: "镜 01", device: "CAMERA", deviceNo: "CAM-02", angle: "侧面", wardrobe: "浅灰衬衫", size: "1.3 GB", duration: "00:08:18", usedBy: ["FN-0729-03"], uploadedAt: "2026-07-29 17:24" },
+      { id: "RW-0729-03", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_机位A_镜02.mp4", scene: "白板区", camera: "A 机位", shot: "镜 02", device: "CAMERA", deviceNo: "CAM-01", angle: "正面", wardrobe: "浅灰衬衫", size: "1.1 GB", duration: "00:05:48", usedBy: [], uploadedAt: "2026-07-29 17:31" },
+      { id: "RW-0729-04", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_手机01_正01.mp4", scene: "办公桌正面", camera: "手机补拍", shot: "镜 01", device: "PHONE", deviceNo: "PHONE-01", angle: "正面", wardrobe: "浅灰衬衫", size: "0.9 GB", duration: "00:06:02", usedBy: [], uploadedAt: "2026-07-29 17:40" },
+      { id: "RW-0729-05", shootId: "ST-0729-01", fileName: "0729_阿留老师_兴趣班_手机01_侧01.mp4", scene: "办公桌侧面", camera: "手机补拍", shot: "镜 01", device: "PHONE", deviceNo: "PHONE-01", angle: "侧面", wardrobe: "浅灰衬衫", size: "0.8 GB", duration: "00:05:47", usedBy: [], uploadedAt: "2026-07-29 17:44" },
+      { id: "RW-0819-01", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学排名_机位A_镜01.mp4", scene: "书架区", camera: "A 机位", shot: "镜 01", device: "CAMERA", deviceNo: "CAM-01", angle: "正面", wardrobe: "深蓝针织", size: "2.2 GB", duration: "00:11:26", usedBy: [], uploadedAt: "2026-08-19 18:05" },
+      { id: "RW-0819-02", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学排名_机位B_镜01.mp4", scene: "书架区", camera: "B 机位", shot: "镜 01", device: "CAMERA", deviceNo: "CAM-02", angle: "侧面", wardrobe: "深蓝针织", size: "1.7 GB", duration: "00:11:31", usedBy: [], uploadedAt: "2026-08-19 18:08" },
+      { id: "RW-0819-03", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学国家专业_机位A_镜02.mp4", scene: "书架区", camera: "A 机位", shot: "镜 02", device: "CAMERA", deviceNo: "CAM-01", angle: "正面", wardrobe: "深蓝针织", size: "1.9 GB", duration: "00:09:50", usedBy: [], uploadedAt: "2026-08-19 18:13" },
+      { id: "RW-0819-04", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学排名_手机02_正01.mp4", scene: "书架区", camera: "手机补拍", shot: "镜 01", device: "PHONE", deviceNo: "PHONE-02", angle: "正面", wardrobe: "深蓝针织", size: "1.0 GB", duration: "00:10:12", usedBy: [], uploadedAt: "2026-08-19 18:20" },
+      { id: "RW-0819-05", shootId: "ST-0819-02", fileName: "0819_阿留老师_留学排名_手机02_侧01.mp4", scene: "书架区", camera: "手机补拍", shot: "镜 02", device: "PHONE", deviceNo: "PHONE-02", angle: "侧面", wardrobe: "深蓝针织", size: "0.9 GB", duration: "00:09:58", usedBy: [], uploadedAt: "2026-08-19 18:24" },
+      { id: "RW-0718-01", shootId: "ST-0718-01", fileName: "0718_状元阿留_暑期规划_机位A_镜01.mp4", scene: "直播间", camera: "A 机位", shot: "镜 01", device: "CAMERA", deviceNo: "CAM-01", angle: "正面", wardrobe: "白色 T 恤", size: "1.6 GB", duration: "00:07:12", usedBy: ["FN-0718-02"], uploadedAt: "2026-07-18 16:40" },
+      { id: "RW-0718-02", shootId: "ST-0718-01", fileName: "0718_状元阿留_暑期规划_机位B_镜01.mp4", scene: "直播间", camera: "B 机位", shot: "镜 01", device: "CAMERA", deviceNo: "CAM-02", angle: "侧面", wardrobe: "白色 T 恤", size: "1.4 GB", duration: "00:07:20", usedBy: [], uploadedAt: "2026-07-18 16:46" },
+      { id: "RW-0718-03", shootId: "ST-0718-01", fileName: "0718_状元阿留_暑期规划_手机01_正01.mp4", scene: "直播间", camera: "手机补拍", shot: "镜 01", device: "PHONE", deviceNo: "PHONE-01", angle: "正面", wardrobe: "白色 T 恤", size: "0.7 GB", duration: "00:06:33", usedBy: [], uploadedAt: "2026-07-18 16:52" }
     ],
     materials: [
       { id: "MAT-FINAL-FN-0729-03", sourceType: "FINAL", sourceId: "FN-0729-03", tags: ["家庭教育", "兴趣班", "行为判断"], stage: "IN_USE", availability: "AVAILABLE", compliance: "RISKY", performance: "STABLE", owner: "许澄", note: "抖音已通过；小红书标题表达需调整后再用。", updatedAt: "2026-08-20 15:10" },
@@ -327,6 +382,8 @@
 
   let state = loadState();
   ensureTopicSchema();
+  ensureVersionSchema();
+  ensureRawAssetSchema();
   ensureMaterialIndex();
   persist();
   const runtime = {
@@ -336,7 +393,16 @@
       editStatus: "ALL",
       finals: "",
       topics: "",
-      raws: "",
+      topicProduct: "ALL",
+      topicIp: "ALL",
+      topicDate: "",
+      topicTag: "ALL",
+      topicPerf: "ALL",
+      libraryQuery: "",
+      libraryType: "ALL",
+      libraryIp: "ALL",
+      libraryDevice: "ALL",
+      libraryCollection: "ALL",
       materials: "",
       materialType: "ALL",
       materialStage: "ALL",
@@ -461,7 +527,105 @@
     state.topics.forEach((topic) => {
       if (!topic.topicType) topic.topicType = "HOME";
       if (!Array.isArray(topic.businessLines) || !topic.businessLines.length) topic.businessLines = ["教育规划"];
+      if (!Array.isArray(topic.tags)) topic.tags = [];
     });
+  }
+
+  function ensureRawAssetSchema() {
+    state.raws.forEach((raw) => {
+      if (!raw.device) raw.device = (raw.camera || "").includes("手机") ? "PHONE" : "CAMERA";
+      if (!raw.deviceNo) raw.deviceNo = raw.device === "PHONE" ? "PHONE-01" : ((raw.camera || "").includes("B") ? "CAM-02" : "CAM-01");
+      if (!raw.angle) raw.angle = (raw.scene || "").includes("侧面") ? "侧面" : "正面";
+      if (!raw.wardrobe) raw.wardrobe = findShoot(raw.shootId)?.wardrobe || "常服";
+    });
+  }
+
+  function ensureVersionSchema() {
+    state.shoots.forEach((shoot) => {
+      if (!Array.isArray(shoot.versions) || !shoot.versions.length) {
+        shoot.versions = [{
+          id: `SV-${shoot.id.slice(3)}-01`,
+          name: `${shoot.date.slice(5).replace("-", "")} 原版`,
+          date: shoot.date,
+          grade: "",
+          note: "系统按拍摄日期自动生成的默认版本。",
+          analysis: "",
+          comments: [],
+          scriptIndexes: shoot.scripts.map((_, index) => index)
+        }];
+      }
+      shoot.versions.forEach((version) => {
+        if (!Array.isArray(version.comments)) version.comments = [];
+        if (!Array.isArray(version.scriptIndexes)) version.scriptIndexes = [];
+        if (typeof version.analysis !== "string") version.analysis = "";
+        if (!version.grade) version.grade = "";
+      });
+    });
+    state.topics.forEach((topic) => {
+      if (!Array.isArray(topic.comments)) topic.comments = [];
+    });
+  }
+
+  function hashSeed(text) {
+    let hash = 0;
+    for (const char of String(text)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+    return hash;
+  }
+
+  function metricsFor(seed) {
+    const hash = hashSeed(seed);
+    const cost = 3000 + (hash % 45000);
+    const roi = Math.round(80 + (hash % 180)) / 100;
+    const profit = Math.round(cost * roi);
+    const deals = Math.max(3, Math.round(cost / 300) + (hash % 40));
+    const play3s = 25 + (hash % 45);
+    const ctr = Math.round(20 + (hash % 70)) / 10;
+    return { cost, deals, profit, roi, play3s, ctr };
+  }
+
+  function sumMetrics(items) {
+    const total = items.reduce((acc, item) => ({
+      cost: acc.cost + item.cost,
+      deals: acc.deals + item.deals,
+      profit: acc.profit + item.profit,
+      play3s: acc.play3s + item.play3s,
+      ctr: acc.ctr + item.ctr
+    }), { cost: 0, deals: 0, profit: 0, play3s: 0, ctr: 0 });
+    const count = items.length || 1;
+    return {
+      cost: total.cost,
+      deals: total.deals,
+      profit: total.profit,
+      play3s: Math.round(total.play3s / count),
+      ctr: Math.round((total.ctr / count) * 10) / 10,
+      roi: total.cost ? Math.round((total.profit / total.cost) * 100) / 100 : 0
+    };
+  }
+
+  function finalMetrics(final) { return metricsFor(final.id); }
+  function topicShoots(topicId) { return state.shoots.filter((shoot) => shoot.topicId === topicId); }
+  function topicFinals(topicId) {
+    const shootIds = topicShoots(topicId).map((shoot) => shoot.id);
+    return state.finals.filter((final) => shootIds.includes(final.shootId));
+  }
+  function topicMetrics(topicId) { return sumMetrics(topicFinals(topicId).map(finalMetrics)); }
+  function versionScripts(shoot, version) { return version.scriptIndexes.map((index) => shoot.scripts[index]).filter(Boolean); }
+  function versionFinals(shoot, version) {
+    const titles = versionScripts(shoot, version).map((script) => script.title);
+    return state.finals.filter((final) => final.shootId === shoot.id && titles.includes(final.title));
+  }
+  function versionMetrics(shoot, version) { return sumMetrics(versionFinals(shoot, version).map(finalMetrics)); }
+  function formatMoney(value) { return value >= 10000 ? `${(value / 10000).toFixed(1)} 万` : String(value); }
+
+  function statChips(metrics) {
+    return `<div class="stat-chip-row">
+      <span class="stat-chip"><small>消耗</small><strong>${formatMoney(metrics.cost)}</strong></span>
+      <span class="stat-chip"><small>成交数</small><strong>${metrics.deals}</strong></span>
+      <span class="stat-chip"><small>预估利润</small><strong>${formatMoney(metrics.profit)}</strong></span>
+      <span class="stat-chip"><small>3s 播放率</small><strong>${metrics.play3s}%</strong></span>
+      <span class="stat-chip"><small>点击率</small><strong>${metrics.ctr}%</strong></span>
+      <span class="stat-chip"><small>ROI</small><strong>${metrics.roi}</strong></span>
+    </div>`;
   }
 
   function ensureMaterialIndex() {
@@ -628,15 +792,25 @@
     return `<button class="${classes}" type="button" data-action="${action}" data-id="${escapeHtml(id)}" ${disabled} ${title}>${iconHtml}${escapeHtml(label)}</button>`;
   }
 
+  const navGroupsForView = { materials: ["materials"], library: ["materials"], topics: ["production"], shoots: ["production"], edits: ["production"], finals: ["production"] };
+
   function render() {
     if (!viewMeta[state.currentView]) state.currentView = "workbench";
+    ensureVersionSchema();
+    ensureRawAssetSchema();
     el.role.value = state.currentRole;
     el.viewLabel.textContent = viewMeta[state.currentView].label;
     document.querySelectorAll(".nav-item[data-view]").forEach((item) => {
-      const active = item.dataset.view === state.currentView;
+      let active = item.dataset.view === state.currentView;
+      if (active && item.dataset.view === "materials") {
+        active = (item.dataset.materialType || "ALL") === runtime.filters.materialType;
+      }
       item.classList.toggle("is-active", active);
       if (active) item.setAttribute("aria-current", "page");
       else item.removeAttribute("aria-current");
+    });
+    document.querySelectorAll(".nav-group").forEach((group) => {
+      group.querySelector(".nav-group__parent")?.classList.toggle("is-group-active", (navGroupsForView[state.currentView] || []).includes(group.dataset.navGroup));
     });
     updateNavCounts();
 
@@ -647,7 +821,7 @@
       finals: renderFinals,
       materials: renderMaterials,
       topics: renderTopics,
-      raws: renderRaws
+      library: renderLibrary
     }[state.currentView];
     el.view.innerHTML = renderer();
   }
@@ -668,7 +842,10 @@
     if (state.currentRole === "director") {
       return [
         ...state.edits.filter((item) => item.status === "SUBMITTED").map((item) => ({ type: "edit", id: item.id, title: item.title, meta: `待审片 · ${item.editor}`, status: item.status, map: editStatus })),
+        ...state.finals.filter((item) => item.platforms.some((row) => row.status === "REJECTED")).map((item) => ({ type: "final", id: item.id, title: item.title, meta: `待处理卡审 · ${item.platforms.filter((row) => row.status === "REJECTED").map((row) => row.platform).join("、")}`, status: "REJECTED", map: overallStatusMap })),
         ...state.shoots.filter((item) => item.status === "READY_TO_ASSIGN").map((item) => ({ type: "shoot", id: item.id, title: item.name, meta: `待分配剪辑 · ${item.rawCount} 条原片`, status: item.status, map: shootStatus })),
+        ...state.shoots.filter((item) => item.status === "READY_TO_SHOOT").map((item) => ({ type: "shoot", id: item.id, title: item.name, meta: `待补拍摄信息 · ${item.date} 拍摄`, status: item.status, map: shootStatus })),
+        ...state.shoots.filter((item) => item.status === "SHOT").map((item) => ({ type: "shoot", id: item.id, title: item.name, meta: "待上传原片 · 命名信息已补录", status: item.status, map: shootStatus })),
         ...state.edits.filter((item) => item.status === "REVISION_REQUIRED").map((item) => ({ type: "edit", id: item.id, title: item.title, meta: `修改处理中 · ${item.editor}`, status: item.status, map: editStatus }))
       ];
     }
@@ -677,6 +854,7 @@
         .filter((item) => item.editor === roleMeta.editor.user && ["TODO", "IN_PROGRESS", "REVISION_REQUIRED", "REOPENED_FOR_AUDIT"].includes(item.status))
         .map((item) => ({ type: "edit", id: item.id, title: item.title, meta: `${priorityMeta[item.priority].label}优先级 · 截止 ${item.due}`, status: item.status, map: editStatus }));
     }
+    if (state.currentRole === "analyst") return [];
     return state.finals
       .filter((item) => overallFinalStatus(item).code !== "ALL_APPROVED")
       .map((item) => ({ type: "final", id: item.id, title: item.title, meta: `${item.platforms.length} 条平台记录`, status: overallFinalStatus(item).code, map: overallStatusMap }));
@@ -690,7 +868,7 @@
   };
 
   function overallFinalStatus(final) {
-    const rows = final.platforms || [];
+    const rows = (final.platforms || []).filter((item) => item.status !== "INVALID");
     if (!rows.length) return { code: "NOT_PUBLISHED", ...overallStatusMap.NOT_PUBLISHED };
     if (rows.some((item) => item.status === "REJECTED" || item.status === "REUPLOAD_REQUIRED")) return { code: "REJECTED", ...overallStatusMap.REJECTED };
     if (rows.every((item) => item.status === "APPROVED")) return { code: "ALL_APPROVED", ...overallStatusMap.ALL_APPROVED };
@@ -705,13 +883,15 @@
     const rejected = state.finals.reduce((count, item) => count + item.platforms.filter((row) => row.status === "REJECTED").length, 0);
     const secondaryMetric = state.currentRole === "director" ? { value: submitted, label: "待审片", note: "需要编导处理" }
       : state.currentRole === "editor" ? { value: editing, label: "进行中剪辑", note: "含待修改与卡审修改" }
+      : state.currentRole === "analyst" ? { value: state.finals.length, label: "在库成片", note: "全量数据只读" }
       : { value: publish, label: "待发布成片", note: "尚无平台记录" };
 
     const roleDescription = {
       director: "集中处理拍摄补录、剪辑分配与审片。",
       editor: "从原片领取到成片提交，所有修改记录留在同一任务。",
       buyer: "登记成片发布、素材 ID 和各平台独立审核结果。",
-      operator: "追踪待发布、平台卡审与内容资产上下游关系。"
+      operator: "追踪待发布、平台卡审与内容资产上下游关系。",
+      analyst: "全量查阅选题复盘、内容资产与投放数据，不介入生产工作流。"
     }[state.currentRole];
 
     return `
@@ -748,7 +928,7 @@
             <div class="panel__body">
               <ol class="steps">
                 ${step("01", "拍摄与脚本", "建立任务、脚本与实际拍摄信息。", "complete")}
-                ${step("02", "原片与剪辑", "原片关联镜号，分配剪辑负责人。", "complete")}
+                ${step("02", "原片与剪辑", "原片登记入库，分配剪辑负责人。", "complete")}
                 ${step("03", "提交与审片", "修订版、意见与通过记录留痕。", "current")}
                 ${step("04", "发布与卡审", "每个平台、账户独立保存审核状态。", "")}
                 ${step("05", "素材沉淀与复用", "成片、原片、脚本和开头进入统一索引。", "")}
@@ -866,45 +1046,528 @@
     </section>`;
   }
 
+  function topicExcerpt(topicId) {
+    const shoot = topicShoots(topicId)[0];
+    return shoot?.scripts[0]?.opening || "";
+  }
+
+  function topicPerfCode(topic) {
+    const finals = topicFinals(topic.id);
+    const metrics = topicMetrics(topic.id);
+    if (finals.length && metrics.roi >= 1.3) return "HIGH";
+    if ((topic.scriptCount || 0) > 0 && !finals.length) return "TO_SHOOT";
+    if (finals.length && metrics.ctr < 2.5) return "DECLINING";
+    return "NORMAL";
+  }
+
+  const topicTypeBadge = {
+    HOME: { label: "主页视频", tone: "info" },
+    PAID: { label: "投流", tone: "accent" }
+  };
+
+  const topicPerfMeta = [
+    ["HIGH", "高潜选题", "累计 ROI ≥ 1.3", "success"],
+    ["TO_SHOOT", "待补拍", "有脚本但无有效成片", "warning"],
+    ["DECLINING", "衰退选题", "点击率低于 2.5%", "error"]
+  ];
+
   function renderTopics() {
     const query = runtime.filters.topics.trim().toLowerCase();
-    const rows = state.topics.filter((item) => [item.id, item.title, topicTypeMeta[item.topicType], ...(item.businessLines || []), item.owner].join(" ").toLowerCase().includes(query));
+    const product = runtime.filters.topicProduct;
+    const ip = runtime.filters.topicIp;
+    const date = runtime.filters.topicDate;
+    const tag = runtime.filters.topicTag;
+    const perf = runtime.filters.topicPerf;
+    const productOptions = [...new Set(state.topics.map((item) => item.product).filter(Boolean))];
+    const ipOptions = [...new Set(state.topics.map((item) => item.ip).filter(Boolean))];
+    const tagCounts = new Map();
+    state.topics.forEach((item) => (item.tags || []).forEach((name) => tagCounts.set(name, (tagCounts.get(name) || 0) + 1)));
+    const perfCounts = Object.fromEntries(topicPerfMeta.map(([code]) => [code, state.topics.filter((item) => topicPerfCode(item) === code).length]));
+    const rows = state.topics.filter((item) => {
+      const shoots = topicShoots(item.id);
+      const versionText = shoots.flatMap((shoot) => (shoot.versions || []).map((version) => `${version.name} ${version.date}`)).join(" ");
+      const matchesQuery = [item.id, item.title, topicTypeMeta[item.topicType], ...(item.businessLines || []), ...(item.tags || []), item.owner, versionText].join(" ").toLowerCase().includes(query);
+      const matchesProduct = product === "ALL" || item.product === product;
+      const matchesIp = ip === "ALL" || item.ip === ip;
+      const matchesDate = !date || shoots.some((shoot) => shoot.date === date || (shoot.versions || []).some((version) => version.date === date));
+      const matchesTag = tag === "ALL" || (item.tags || []).includes(tag);
+      const matchesPerf = perf === "ALL" || topicPerfCode(item) === perf;
+      return matchesQuery && matchesProduct && matchesIp && matchesDate && matchesTag && matchesPerf;
+    }).sort((a, b) => topicMetrics(b.id).profit - topicMetrics(a.id).profit);
     const disabled = !can("createTopic");
     return `<section class="page">
-      ${pageHeader("选题脚本", "基础选题库用于创建拍摄任务、复用历史脚本，并查看已经关联的成片。", button("新建选题", "create-topic", "", { primary: !disabled, icon: "plus", disabled, title: disabled ? "当前角色没有新建选题权限" : "" }))}
-      ${searchPanel("topics", "搜索选题、脚本类型、业务线或负责人", runtime.filters.topics)}
-      <section class="panel"><table class="spec-sheet">
-        <thead><tr><th>选题</th><th>脚本类型</th><th>业务线</th><th>脚本数</th><th>关联成片</th><th>负责人</th><th>更新时间</th></tr></thead>
-        <tbody>${rows.map((item) => `<tr>
-          <td data-label="选题"><div class="cell-title">${escapeHtml(item.title)}</div><div class="cell-subtitle">${item.id}</div></td>
-          <td data-label="脚本类型">${escapeHtml(topicTypeMeta[item.topicType] || item.topicType)}</td><td data-label="业务线"><div class="tag-list tag-list--compact">${item.businessLines.map((line) => `<span>${escapeHtml(line)}</span>`).join("")}</div></td>
-          <td data-label="脚本数"><span class="mono-value">${item.scriptCount}</span></td><td data-label="关联成片"><span class="mono-value">${item.finalCount}</span></td>
-          <td data-label="负责人">${escapeHtml(item.owner)}</td><td data-label="更新时间"><span class="mono-value">${escapeHtml(item.updatedAt)}</span></td>
-        </tr>`).join("")}</tbody>
-      </table><div class="pagination-hint"><span>共 ${rows.length} 条</span><span>基础库 P0</span></div></section>
+      ${pageHeader(
+        "选题脚本库",
+        "统一管理选题来源、脚本版本、适用视频用途及历史投放表现。",
+        `${button("导入选题", "import-topics", "", { disabled, title: disabled ? "当前角色没有导入选题权限" : "" })}${button("新建选题", "create-topic", "", { primary: !disabled, icon: "plus", disabled, title: disabled ? "当前角色没有新建选题权限" : "" })}`
+      )}
+      <section class="filter-panel">
+        <div class="filter-row">
+          <div class="filter-field"><label for="filter-topics">关键词</label><input class="input-control" id="filter-topics" data-filter="topics" value="${escapeHtml(runtime.filters.topics)}" placeholder="搜索选题、拍摄版本、素材或 material_id" /></div>
+          <div class="filter-field"><label for="filter-topic-product">产品 / 项目</label><select class="select-control" id="filter-topic-product" data-material-filter="topicProduct"><option value="ALL">全部产品</option>${productOptions.map((option) => `<option value="${escapeHtml(option)}" ${product === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select></div>
+          <div class="filter-field"><label for="filter-topic-ip">IP</label><select class="select-control" id="filter-topic-ip" data-material-filter="topicIp"><option value="ALL">全部 IP</option>${ipOptions.map((option) => `<option value="${escapeHtml(option)}" ${ip === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select></div>
+          <div class="filter-field"><label for="filter-topic-date">拍摄日期</label><input class="input-control" id="filter-topic-date" type="date" data-material-filter="topicDate" value="${escapeHtml(date)}" /></div>
+        </div>
+      </section>
+      <div class="topics-layout">
+        <section class="panel">
+          <table class="spec-sheet">
+            <thead><tr><th>选题 / 脚本摘要</th><th>视频用途</th><th>已拍版本</th><th>历史表现</th></tr></thead>
+            <tbody>${rows.map((item) => {
+              const metrics = topicMetrics(item.id);
+              const versionCount = topicShoots(item.id).reduce((count, shoot) => count + (shoot.versions || []).length, 0);
+              const roiTone = metrics.roi >= 1.3 ? "success" : metrics.roi >= 1 ? "info" : "warning";
+              return `<tr>
+                <td data-label="选题 / 脚本摘要"><div class="cell-title"><button class="task-link" type="button" data-action="open-topic" data-id="${item.id}">${escapeHtml(item.title)}</button></div><div class="cell-subtitle">${escapeHtml(topicExcerpt(item.id) || item.id)}</div></td>
+                <td data-label="视频用途">${statusBadge(item.topicType, topicTypeBadge)}</td>
+                <td data-label="已拍版本"><div class="mono-value">${versionCount}</div><div class="cell-subtitle">拍摄版本</div></td>
+                <td data-label="历史表现"><div class="cell-title"><span class="status-badge" data-tone="${roiTone}">ROI ${metrics.roi}</span></div><button class="task-link" type="button" data-action="open-topic" data-id="${item.id}">查看</button></td>
+              </tr>`;
+            }).join("") || `<tr><td colspan="4">${renderEmpty("没有匹配的选题", "调整筛选条件，或导入、新建一个选题。", "shoot")}</td></tr>`}</tbody>
+          </table>
+          <div class="pagination-hint"><span>共 ${rows.length} 条</span><span>默认按累计预估利润降序 · 演示数据</span></div>
+        </section>
+        <aside class="topics-aside">
+          <section class="panel">
+            <header class="panel__header"><h2>选题标签</h2></header>
+            <div class="tag-pills">
+              <button class="tag-pill ${tag === "ALL" ? "is-active" : ""}" type="button" data-action="filter-topic-tag" data-tag="ALL">全部 ${state.topics.length}</button>
+              ${[...tagCounts.entries()].map(([name, count]) => `<button class="tag-pill ${tag === name ? "is-active" : ""}" type="button" data-action="filter-topic-tag" data-tag="${escapeHtml(name)}">${escapeHtml(name)} ${count}</button>`).join("")}
+            </div>
+          </section>
+          <section class="panel">
+            <header class="panel__header"><h2>选题表现</h2></header>
+            <div class="perf-list">
+              ${topicPerfMeta.map(([code, label, rule, tone]) => `<button class="perf-row ${perf === code ? "is-active" : ""}" type="button" data-action="filter-topic-perf" data-perf="${code}">
+                <span class="perf-row__label"><span class="perf-dot" data-tone="${tone}"></span><span><strong>${label}</strong><small>${rule}</small></span></span>
+                <strong class="perf-row__count">${perfCounts[code]}</strong>
+              </button>`).join("")}
+            </div>
+            <p class="section-note">演示口径：接入千川 API 后按近 30 天 ROI、成片有效性与连续 7 天 CTR 计算。</p>
+          </section>
+        </aside>
+      </div>
     </section>`;
   }
 
-  function renderRaws() {
-    const query = runtime.filters.raws.trim().toLowerCase();
-    const rows = state.raws.filter((item) => {
-      const shoot = findShoot(item.shootId);
-      return [item.id, item.fileName, item.scene, item.camera, item.shot, shoot?.topic || "", shoot?.ip || ""].join(" ").toLowerCase().includes(query);
+  function renderComments(comments, refKey) {
+    const list = comments.slice().reverse().map((comment) => `<li class="comment-item">
+      <div class="comment-item__meta"><strong>${escapeHtml(comment.author)}</strong><span>${escapeHtml(roleMeta[comment.role]?.label || "成员")}</span><time>${escapeHtml(comment.at)}</time></div>
+      <p>${escapeHtml(comment.text)}</p>
+      <div class="comment-item__actions">
+        <button class="task-link" type="button" data-action="edit-comment" data-id="${refKey}|${comment.id}">编辑</button>
+        <button class="task-link" type="button" data-action="delete-comment" data-id="${refKey}|${comment.id}">删除</button>
+      </div>
+    </li>`).join("");
+    return `<div class="comment-block">
+      ${comments.length ? `<ul class="comment-list">${list}</ul>` : `<p class="cell-subtitle">还没有评论。</p>`}
+      <div class="comment-form">
+        <textarea class="textarea-control" data-comment-input="${refKey}" placeholder="写下复盘或看法；评论仅留痕，不驱动状态流转。"></textarea>
+        <div class="button-row">${button("发表评论", "add-comment", refKey)}</div>
+      </div>
+    </div>`;
+  }
+
+  function resolveComments(refKey) {
+    const [scope, first, second] = refKey.split(":");
+    if (scope === "topic") {
+      const topic = findTopic(first);
+      return topic && Array.isArray(topic.comments) ? { list: topic.comments, redraw: () => openTopicDrawer(topic.id) } : null;
+    }
+    if (scope === "version") {
+      const shoot = findShoot(first);
+      const version = shoot?.versions.find((item) => item.id === second);
+      return shoot && version ? { list: version.comments, redraw: () => openTopicDrawer(shoot.topicId) } : null;
+    }
+    return null;
+  }
+
+  function renderTopicVersion(item, defaultOpen = false) {
+    const { shoot, version, metrics } = item;
+    const scripts = versionScripts(shoot, version);
+    const finals = versionFinals(shoot, version);
+    const canGrade = can("gradeVersion");
+    const canAnalysis = can("editAnalysis");
+    return `<details class="version-card" ${defaultOpen ? "open" : ""}>
+      <summary>
+        <span class="version-card__title">${escapeHtml(version.name)}${version.grade ? ` <span class="grade-badge" data-grade="${escapeHtml(version.grade)}">${escapeHtml(version.grade)} 级</span>` : ""}</span>
+        <span class="mono-value">${escapeHtml(version.date)} · 利润 ${formatMoney(metrics.profit)} · ROI ${metrics.roi}</span>
+      </summary>
+      <div class="version-card__body">
+        ${version.note ? `<p class="cell-subtitle">${escapeHtml(version.note)}</p>` : ""}
+        ${statChips(metrics)}
+        ${canGrade ? `<div class="button-row">
+          ${button("标记 S 级", "grade-version", `${shoot.id}|${version.id}|S`, { disabled: version.grade === "S" })}
+          ${button("标记 A 级", "grade-version", `${shoot.id}|${version.id}|A`, { disabled: version.grade === "A" })}
+          ${button("取消评级", "grade-version", `${shoot.id}|${version.id}|`, { disabled: !version.grade })}
+        </div>` : ""}
+        <section>
+          <h4>拍摄脚本</h4>
+          ${scripts.length ? `<ul class="compact-list">${scripts.map((script) => `<li><strong>${escapeHtml(script.title)}</strong><p>${escapeHtml(script.opening)}</p><p>剪辑须知：${escapeHtml(script.editNote)}</p></li>`).join("")}</ul>` : `<p class="cell-subtitle">该版本未关联脚本。</p>`}
+        </section>
+        <section>
+          <h4>对应视频成片</h4>
+          ${finals.length ? `<ul class="asset-list">${finals.map((final) => `<li class="asset-item"><div class="asset-item__top"><button class="task-link" type="button" data-action="open-final" data-id="${final.id}">${escapeHtml(final.title)}</button>${statusBadge(overallFinalStatus(final).code, overallStatusMap)}</div><p>预估利润 ${formatMoney(finalMetrics(final).profit)} · ROI ${finalMetrics(final).roi}</p></li>`).join("")}</ul>` : `<p class="cell-subtitle">该版本尚未产出成片。</p>`}
+        </section>
+        <section>
+          <h4>脚本内容分析</h4>
+          ${canAnalysis
+            ? `<textarea class="textarea-control" data-analysis-for="${shoot.id}|${version.id}" placeholder="自由填写复盘分析，不限结构。">${escapeHtml(version.analysis)}</textarea><div class="button-row">${button("保存分析", "save-analysis", `${shoot.id}|${version.id}`)}</div>`
+            : (version.analysis ? `<p>${escapeHtml(version.analysis)}</p>` : `<p class="cell-subtitle">暂无分析。</p>`)}
+        </section>
+        <section>
+          <h4>拍摄脚本评论 <span class="mono-label">${version.comments.length}</span></h4>
+          ${renderComments(version.comments, `version:${shoot.id}:${version.id}`)}
+        </section>
+      </div>
+    </details>`;
+  }
+
+  function openTopicDrawer(id) {
+    const topic = findTopic(id);
+    if (!topic) return;
+    const metrics = topicMetrics(id);
+    const rankedFinals = topicFinals(id).map((final) => ({ final, metrics: finalMetrics(final) })).sort((a, b) => b.metrics.profit - a.metrics.profit);
+    const topFinals = rankedFinals.slice(0, 5);
+    const versions = topicShoots(id).flatMap((shoot) => (shoot.versions || []).map((version) => ({ shoot, version, metrics: versionMetrics(shoot, version) })));
+    const gradeOrder = (item) => (item.version.grade === "S" ? 0 : 1);
+    const featured = versions.filter((item) => item.version.grade === "S" || item.version.grade === "A").sort((a, b) => gradeOrder(a) - gradeOrder(b) || b.version.date.localeCompare(a.version.date));
+    const rest = versions.filter((item) => !featured.includes(item)).sort((a, b) => b.version.date.localeCompare(a.version.date));
+    const body = `
+      <section>
+        <div class="section-title-row"><h3>选题累计数据</h3><span class="mono-label">演示数据</span></div>
+        ${statChips(metrics)}
+      </section>
+      <section>
+        <div class="section-title-row"><h3>代表视频</h3><span class="mono-label">TOP ${topFinals.length}</span></div>
+        ${topFinals.length ? `<ul class="asset-list">${topFinals.map(({ final, metrics: finalMetric }) => `<li class="asset-item"><div class="asset-item__top"><button class="task-link" type="button" data-action="open-final" data-id="${final.id}">${escapeHtml(final.title)}</button>${statusBadge(overallFinalStatus(final).code, overallStatusMap)}</div><p>预估利润 ${formatMoney(finalMetric.profit)} · ROI ${finalMetric.roi} · ${escapeHtml(final.editor)}</p></li>`).join("")}</ul>` : renderEmpty("还没有成片", "该选题下暂无审片通过的成片。", "final")}
+        <p class="section-note">代表视频默认展示该选题下累计利润最高的 5 个剪辑版本。</p>
+      </section>
+      <section>
+        <div class="section-title-row"><h3>选题评论</h3><span class="mono-label">${topic.comments.length}</span></div>
+        ${renderComments(topic.comments, `topic:${topic.id}`)}
+      </section>
+      <section>
+        <div class="section-title-row"><h3>拍摄版本</h3><span class="mono-label">${versions.length} VERSIONS</span></div>
+        ${featured.length ? featured.map((item) => renderTopicVersion(item, true)).join("") : `<p class="section-note">暂无 S / A 级拍摄版本，可在版本内由编导或数据分析师定级。</p>`}
+        ${rest.length ? `<details class="version-more"><summary>加载其余 ${rest.length} 个历史版本</summary>${rest.map((item) => renderTopicVersion(item)).join("")}</details>` : ""}
+      </section>`;
+    openDrawer("TOPIC", topic.title, body, { type: "topic", id });
+  }
+
+  function openCreateVersionDialog(shootId) {
+    const shoot = findShoot(shootId);
+    if (!shoot || !can("manageVersion")) return;
+    const defaultName = `${shoot.date.slice(5).replace("-", "")} 版本${(shoot.versions || []).length + 1}`;
+    openDialog({
+      kicker: "SHOOT VERSION",
+      title: "新建拍摄版本",
+      submitLabel: "创建版本",
+      body: `<div class="form-grid">
+        ${field("name", "版本名称", defaultName, { required: true, wide: true, helper: "系统按拍摄日期自动生成，可修改。" })}
+        ${field("date", "拍摄日期", shoot.date, { type: "date", required: true })}
+        ${field("note", "版本说明", "", { type: "textarea", wide: true, placeholder: "例如：更换开头钩子复拍。" })}
+        <div class="field field--wide"><label>归入脚本</label><div class="collection-choice-list">${shoot.scripts.map((script, index) => `<label class="collection-choice"><input type="checkbox" name="scriptIndexes" value="${index}" checked /><span><strong>${escapeHtml(script.title)}</strong></span></label>`).join("")}</div><small class="field-helper">至少选择一个脚本；同一脚本可属于多个版本。</small></div>
+      </div>`,
+      submit: (formData) => {
+        if (!validateRequired(formData, ["name", "date"])) return false;
+        const scriptIndexes = formData.getAll("scriptIndexes").map(Number);
+        if (!scriptIndexes.length) return false;
+        shoot.versions.push({
+          id: `SV-${String(Date.now()).slice(-6)}`,
+          name: formData.get("name").trim(),
+          date: formData.get("date"),
+          grade: "",
+          note: formData.get("note").trim(),
+          analysis: "",
+          comments: [],
+          scriptIndexes
+        });
+        persist(); render(); openShootDrawer(shootId);
+        announce("拍摄版本已创建。", true, "success");
+        return true;
+      }
     });
+  }
+
+  function gradeVersion(shootId, versionId, grade) {
+    const shoot = findShoot(shootId);
+    const version = shoot?.versions.find((item) => item.id === versionId);
+    if (!version || !can("gradeVersion")) return;
+    version.grade = grade;
+    persist(); render(); openTopicDrawer(shoot.topicId);
+    announce(grade ? `已标记为 ${grade} 级拍摄版本。` : "已取消该版本评级。", true, "success");
+  }
+
+  function saveAnalysis(refKey) {
+    const [shootId, versionId] = refKey.split("|");
+    const shoot = findShoot(shootId);
+    const version = shoot?.versions.find((item) => item.id === versionId);
+    if (!version || !can("editAnalysis")) return;
+    const input = el.drawerBody.querySelector(`[data-analysis-for="${refKey}"]`);
+    version.analysis = input?.value.trim() || "";
+    persist(); render(); openTopicDrawer(shoot.topicId);
+    announce("脚本内容分析已保存。", true, "success");
+  }
+
+  function addComment(refKey) {
+    const target = resolveComments(refKey);
+    if (!target) return;
+    const input = el.drawerBody.querySelector(`[data-comment-input="${refKey}"]`);
+    const text = input?.value.trim() || "";
+    if (!text) {
+      input?.focus();
+      return;
+    }
+    target.list.push({ id: `C-${String(Date.now()).slice(-8)}`, author: roleMeta[state.currentRole].user, role: state.currentRole, at: nowText(), text });
+    persist(); render(); target.redraw();
+    announce("评论已发表。", true, "success");
+  }
+
+  function openEditCommentDialog(refKey, commentId) {
+    const target = resolveComments(refKey);
+    const comment = target?.list.find((item) => item.id === commentId);
+    if (!comment) return;
+    openDialog({
+      kicker: "EDIT COMMENT",
+      title: "编辑评论",
+      submitLabel: "保存评论",
+      body: `<div class="form-grid">${field("text", "评论内容", comment.text, { type: "textarea", required: true, wide: true })}</div>`,
+      submit: (formData) => {
+        if (!validateRequired(formData, ["text"])) return false;
+        comment.text = formData.get("text").trim();
+        persist(); render(); target.redraw();
+        announce("评论已更新。", true, "success");
+        return true;
+      }
+    });
+  }
+
+  function deleteComment(refKey, commentId) {
+    const target = resolveComments(refKey);
+    if (!target) return;
+    const index = target.list.findIndex((item) => item.id === commentId);
+    if (index < 0) return;
+    const [removed] = target.list.splice(index, 1);
+    persist(); render(); target.redraw();
+    showToast("评论已删除。", "neutral", { label: "撤销", run: () => { target.list.push(removed); persist(); render(); target.redraw(); } });
+  }
+
+  function scriptAssetRows() {
+    const merged = new Map();
+    state.shoots.forEach((shoot) => {
+      const topic = findTopic(shoot.topicId);
+      (shoot.versions || []).forEach((version) => {
+        versionScripts(shoot, version).forEach((script) => {
+          const key = `${shoot.id}|${script.title}`;
+          if (!merged.has(key)) merged.set(key, { shoot, topic, script, versions: [] });
+          merged.get(key).versions.push(version);
+        });
+      });
+    });
+    return [...merged.values()];
+  }
+
+  function scriptFinals(shoot, script) {
+    const editFinalIds = state.edits.filter((edit) => edit.shootId === shoot.id && edit.title === script.title && edit.finalId).map((edit) => edit.finalId);
+    return state.finals.filter((final) => editFinalIds.includes(final.id) || (final.shootId === shoot.id && final.title === script.title));
+  }
+
+  function libraryRows() {
+    const rows = [];
+    state.shoots.forEach((shoot) => {
+      shoot.scripts.forEach((script, index) => {
+        rows.push({
+          kind: "SCRIPT",
+          materialId: `MAT-SCRIPT-${shoot.id}-${String(index + 1).padStart(2, "0")}`,
+          shoot,
+          script,
+          scriptIndex: index,
+          date: shoot.date
+        });
+      });
+    });
+    state.raws.forEach((raw) => {
+      rows.push({ kind: "RAW", materialId: `MAT-RAW-${raw.id}`, raw, shoot: findShoot(raw.shootId), date: raw.uploadedAt.slice(0, 10) });
+    });
+    return rows;
+  }
+
+  function renderLibraryCard(row) {
+    if (row.kind === "SCRIPT") {
+      const { shoot, script } = row;
+      const previewId = `${shoot.id}|${row.scriptIndex}`;
+      return `<article class="library-card">
+        <button class="library-card__preview library-card__preview--script" type="button" data-action="open-script-preview" data-id="${escapeHtml(previewId)}" title="预览 PDF 文档">
+          <span class="library-card__badge library-card__badge--pdf">${icon("file")}PDF</span>
+          <span class="library-card__doc" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="library-card__duration">PDF 文档</span>
+        </button>
+        <div class="library-card__body">
+          <button class="library-card__title" type="button" data-action="open-script-preview" data-id="${escapeHtml(previewId)}">${escapeHtml(script.title)}</button>
+          <p class="library-card__meta">${escapeHtml(shoot.date)} · IP ${escapeHtml(shoot.ip)}</p>
+          <p class="library-card__sub">${escapeHtml(script.opening || "开头待补充")}</p>
+        </div>
+        <footer class="library-card__footer">
+          <span class="mono-value">${escapeHtml(row.materialId.replace("MAT-SCRIPT-", "S-"))}</span>
+          <span class="cell-actions">
+            <button class="task-link" type="button" data-action="open-script-preview" data-id="${escapeHtml(previewId)}">预览</button>
+            <button class="task-link" type="button" data-action="download-script" data-id="${escapeHtml(`${shoot.id}|${script.title}`)}">下载</button>
+          </span>
+        </footer>
+      </article>`;
+    }
+    const { raw, shoot } = row;
+    const deviceLabel = raw.device === "PHONE" ? "手机" : "相机";
+    return `<article class="library-card">
+      <button class="library-card__preview" type="button" data-action="preview-demo" data-id="${raw.id}" title="播放预览（演示）">
+        <span class="library-card__badge">${icon("camera")}${deviceLabel} ${escapeHtml(raw.deviceNo)}</span>
+        <span class="library-card__angle">${escapeHtml(raw.angle)} · ${escapeHtml(raw.wardrobe)}</span>
+        <span class="library-card__play">${icon("play")}</span>
+        <span class="library-card__duration">${escapeHtml(raw.duration)}</span>
+      </button>
+      <div class="library-card__body">
+        <button class="library-card__title" type="button" data-action="open-material" data-id="${escapeHtml(row.materialId)}">${escapeHtml(raw.fileName)}</button>
+        <p class="library-card__meta">${escapeHtml(raw.uploadedAt.slice(0, 10))} · IP ${escapeHtml(shoot?.ip || "—")}</p>
+        <p class="library-card__sub">${escapeHtml(raw.scene)} · ${escapeHtml(raw.size)}</p>
+      </div>
+      <footer class="library-card__footer">
+        <span class="mono-value">${escapeHtml(raw.id)}</span>
+        <span class="cell-actions">
+          <button class="task-link" type="button" data-action="preview-demo" data-id="${raw.id}">预览</button>
+          <button class="task-link" type="button" data-action="open-material" data-id="${escapeHtml(row.materialId)}">详情</button>
+        </span>
+      </footer>
+    </article>`;
+  }
+
+  function openScriptPreview(shootId, indexValue) {
+    const shoot = findShoot(shootId);
+    const script = shoot?.scripts[Number(indexValue)];
+    if (!shoot || !script) return;
+    const body = `
+      <div class="pdf-viewer">
+        <div class="pdf-viewer__bar"><span class="pdf-viewer__file">${icon("file")}${escapeHtml(script.title)}.pdf</span><span class="mono-value">1 / 2</span></div>
+        <div class="pdf-page">
+          <h2>${escapeHtml(script.title)}</h2>
+          <p class="pdf-page__meta">IP ${escapeHtml(shoot.ip)} · ${escapeHtml(shoot.date)} · ${escapeHtml(shoot.topic)}</p>
+          <h3>开头</h3>
+          <p>${escapeHtml(script.opening || "（待补充）")}</p>
+        </div>
+        <div class="pdf-page">
+          <h3>剪辑须知</h3>
+          <p>${escapeHtml(script.editNote || "（待补充）")}</p>
+        </div>
+      </div>
+      <div class="button-row">${button("下载该脚本", "download-script", `${shootId}|${script.title}`, { icon: "download" })}</div>`;
+    openDrawer("PDF PREVIEW", script.title, body, { type: "script-preview", id: `${shootId}|${indexValue}` });
+  }
+
+  function renderLibrary() {
+    ensureMaterialIndex();
+    const query = runtime.filters.libraryQuery.trim().toLowerCase();
+    const type = runtime.filters.libraryType;
+    const ip = runtime.filters.libraryIp;
+    const device = runtime.filters.libraryDevice;
+    const collectionId = runtime.filters.libraryCollection;
+    const selectedCollection = collectionId === "ALL" ? null : findCollection(collectionId);
+    const all = libraryRows();
+    const ipOptions = [...new Set(all.map((row) => row.shoot?.ip).filter(Boolean))];
+    const deviceOptions = [...new Map(state.raws.map((raw) => [raw.deviceNo, raw])).values()].sort((a, b) => a.deviceNo.localeCompare(b.deviceNo));
+    const rows = all.filter((row) => {
+      const matchesType = type === "ALL" || row.kind === type;
+      const matchesIp = ip === "ALL" || row.shoot?.ip === ip;
+      const matchesDevice = device === "ALL" || (row.kind === "RAW" && row.raw.deviceNo === device);
+      const matchesCollection = !selectedCollection || selectedCollection.materialIds.includes(row.materialId);
+      const text = row.kind === "SCRIPT"
+        ? [row.script.title, row.script.opening, row.script.editNote, row.shoot.topic, row.shoot.ip, row.shoot.id]
+        : [row.raw.id, row.raw.fileName, row.raw.scene, row.raw.deviceNo, row.raw.angle, row.raw.wardrobe, row.shoot?.topic || "", row.shoot?.ip || ""];
+      return matchesType && matchesIp && matchesDevice && matchesCollection && text.join(" ").toLowerCase().includes(query);
+    }).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    const createDisabled = !can("createCollection");
+    const scriptCount = rows.filter((row) => row.kind === "SCRIPT").length;
+    const rawCount = rows.filter((row) => row.kind === "RAW").length;
     return `<section class="page">
-      ${pageHeader("视频原片", "按产品、IP、选题、拍摄日期、镜号与成片反查原片；文件关系不依赖文件名解析。")}
-      ${searchPanel("raws", "搜索文件名、场景、镜号、选题或 IP", runtime.filters.raws)}
-      <section class="panel"><table class="spec-sheet">
-        <thead><tr><th>原片文件</th><th>拍摄任务</th><th>场景 / 机位</th><th>镜号</th><th>时长 / 大小</th><th>成片引用</th><th>上传时间</th></tr></thead>
-        <tbody>${rows.map((item) => `<tr>
-          <td data-label="原片文件"><div class="cell-title">${escapeHtml(item.fileName)}</div><div class="cell-subtitle">${item.id}</div></td>
-          <td data-label="拍摄任务"><button class="task-link" type="button" data-action="open-shoot" data-id="${item.shootId}">${escapeHtml(findShoot(item.shootId)?.topic || item.shootId)}</button></td>
-          <td data-label="场景 / 机位"><div>${escapeHtml(item.scene)}</div><div class="cell-subtitle">${escapeHtml(item.camera)}</div></td>
-          <td data-label="镜号">${escapeHtml(item.shot)}</td><td data-label="时长 / 大小"><span class="mono-value">${item.duration} / ${item.size}</span></td>
-          <td data-label="成片引用"><span class="mono-value">${item.usedBy.length}</span></td><td data-label="上传时间"><span class="mono-value">${escapeHtml(item.uploadedAt)}</span></td>
-        </tr>`).join("") || `<tr><td colspan="7">${renderEmpty("没有匹配的原片", "调整关键词后再搜索。", "raw")}</td></tr>`}</tbody>
-      </table><div class="pagination-hint"><span>共 ${rows.length} 条</span><span>对象存储直传为生产前提</span></div></section>
+      <section class="filter-panel library-toolbar">
+        <div class="filter-row library-toolbar__row">
+          <div class="filter-field library-toolbar__search"><label for="filter-library">关键词</label><input class="input-control" id="filter-library" data-filter="libraryQuery" value="${escapeHtml(runtime.filters.libraryQuery)}" placeholder="脚本标题、文件名、选题、IP 或设备编号" /></div>
+          <div class="filter-field library-toolbar__ip"><label for="filter-library-ip">IP 老师</label><select class="select-control" id="filter-library-ip" data-material-filter="libraryIp"><option value="ALL">全部 IP</option>${ipOptions.map((option) => `<option value="${escapeHtml(option)}" ${ip === option ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}</select></div>
+          <div class="filter-field library-toolbar__device"><label for="filter-library-device">设备编号</label><select class="select-control" id="filter-library-device" data-material-filter="libraryDevice"><option value="ALL">全部设备</option>${deviceOptions.map((raw) => `<option value="${escapeHtml(raw.deviceNo)}" ${device === raw.deviceNo ? "selected" : ""}>${raw.device === "PHONE" ? "手机" : "相机"} ${escapeHtml(raw.deviceNo)}（${state.raws.filter((item) => item.deviceNo === raw.deviceNo).length} 条）</option>`).join("")}</select></div>
+          <div class="segmented" aria-label="素材类型筛选">${[["ALL", "全部"], ["SCRIPT", "脚本 PDF"], ["RAW", "原片视频"]].map(([code, label]) => `<button type="button" class="${type === code ? "is-active" : ""}" data-action="filter-library-type" data-kind="${code}" aria-pressed="${type === code}">${label}</button>`).join("")}</div>
+          <div class="library-toolbar__actions">
+            ${button("新建合集", "create-collection", "", { icon: "plus", disabled: createDisabled, title: createDisabled ? "当前角色没有新建合集权限" : "新建素材合集，脚本与原片统一收纳" })}
+            ${button("一键下载", "download-scripts", "", { primary: true, icon: "download", title: "按当前筛选结果导出脚本文件" })}
+          </div>
+        </div>
+        <div class="library-collection-strip" aria-label="素材合集">
+          <button class="library-chip ${collectionId === "ALL" ? "is-active" : ""}" type="button" data-action="filter-library-collection" data-id="ALL">全部素材<b>${all.length}</b></button>
+          ${state.collections.map((collection) => `<button class="library-chip ${collectionId === collection.id ? "is-active" : ""}" type="button" data-action="filter-library-collection" data-id="${collection.id}" title="${escapeHtml(collection.description)}">${escapeHtml(collection.name)}<b>${collection.materialIds.filter((id) => findMaterial(id)).length}</b></button>`).join("")}
+        </div>
+      </section>
+      <div class="library-grid">${rows.map(renderLibraryCard).join("") || renderEmpty("没有匹配的素材", "调整筛选条件，或新建合集开始组织脚本与原片。", "raw")}</div>
+      <div class="pagination-hint"><span>共 ${rows.length} 条</span><span>脚本 ${scriptCount} · 原片 ${rawCount}</span></div>
     </section>`;
+  }
+
+  function scriptFileText(row) {
+    const { shoot, topic, script, versions } = row;
+    return [
+      `# ${script.title}`,
+      ``,
+      `- 所属选题：${shoot.topic}（${shoot.topicId}）`,
+      `- 拍摄任务：${shoot.name}（${shoot.id}）`,
+      `- 视频用途：${topicTypeBadge[topic?.topicType || "HOME"]?.label || "主页视频"}`,
+      `- 出镜 IP：${shoot.ip}`,
+      `- 拍摄版本：${versions.map((version) => `${version.name}（${version.date}）`).join("、")}`,
+      ``,
+      `## 开头`,
+      ``,
+      script.opening || "（待补充）",
+      ``,
+      `## 剪辑须知`,
+      ``,
+      script.editNote || "（待补充）",
+      ``
+    ].join("\n");
+  }
+
+  function triggerDownload(fileName, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadScriptAsset(shootId, title) {
+    const row = scriptAssetRows().find((item) => item.shoot.id === shootId && item.script.title === title);
+    if (!row) return;
+    triggerDownload(`${title}.md`, scriptFileText(row));
+    showToast("已加入后台下载队列（演示），文件已开始下载。", "success");
+  }
+
+  function downloadFilteredScripts() {
+    const query = runtime.filters.libraryQuery.trim().toLowerCase();
+    const ip = runtime.filters.libraryIp;
+    const collectionId = runtime.filters.libraryCollection;
+    const selectedCollection = collectionId === "ALL" ? null : findCollection(collectionId);
+    const rows = scriptAssetRows().filter((row) => {
+      const { shoot, script, versions } = row;
+      if (runtime.filters.libraryType === "RAW") return false;
+      if (ip !== "ALL" && shoot.ip !== ip) return false;
+      if (selectedCollection) {
+        const index = Math.max(0, shoot.scripts.findIndex((item) => item.title === script.title));
+        if (!selectedCollection.materialIds.includes(`MAT-SCRIPT-${shoot.id}-${String(index + 1).padStart(2, "0")}`)) return false;
+      }
+      return [script.title, script.opening, script.editNote, shoot.topic, shoot.ip, shoot.id, ...versions.map((version) => version.name)].join(" ").toLowerCase().includes(query);
+    });
+    if (!rows.length) {
+      showToast("当前筛选结果为空，没有可下载的脚本。", "error");
+      return;
+    }
+    triggerDownload(`脚本资产导出_${rows.length} 条.md`, rows.map(scriptFileText).join("\n---\n\n"));
+    showToast(`已加入后台下载队列（演示），${rows.length} 条脚本开始下载。`, "success");
   }
 
   function renderMaterials() {
@@ -932,7 +1595,7 @@
     const externalDisabled = !can("registerExternalMaterial");
     return `<section class="page page--materials">
       ${pageHeader(
-        "内容素材库",
+        "内容资产",
         "统一索引现有成片、原片、脚本、标题与开头；围绕可复用性组织素材，并从任一素材继续创建生产任务。",
         `${button("登记外部素材", "register-external-material", "", { disabled: externalDisabled, title: externalDisabled ? "切换到编导或运营角色登记" : "" })}${button("新建集合", "create-collection", "", { primary: !createDisabled, icon: "plus", disabled: createDisabled, title: createDisabled ? "当前角色没有新建集合权限" : "" })}`
       )}
@@ -1052,8 +1715,11 @@
     const upload = runtime.upload?.shootId === id ? runtime.upload : null;
     const uploadDisabled = !can("uploadRaw");
     const assignDisabled = !can("assignEdit") || item.rawCount === 0;
+    const fillInfoDisabled = !can("fillShootInfo") || !["READY_TO_SHOOT", "SHOT"].includes(item.status);
+    const scriptEditDisabled = !can("editScript");
     const body = `
       <div class="button-row">
+        ${button("补录命名信息", "fill-shoot-info", item.id, { primary: !fillInfoDisabled && item.status !== "SHOT", icon: "file", disabled: fillInfoDisabled, title: fillInfoDisabled ? "仅编导可在待拍摄 / 已拍摄待补录阶段补录" : "补录场景 / IP / 服装 / 设备 / 机位" })}
         ${button("上传原片", "upload-raw", item.id, { primary: true, icon: "upload", disabled: uploadDisabled, title: uploadDisabled ? "当前角色没有上传原片权限" : "" })}
         ${button("分配剪辑", "assign-edit", item.id, { disabled: assignDisabled, title: assignDisabled ? "需要编导权限，且至少有一条原片" : "" })}
         ${button("打印拍摄文档", "print-shoot", item.id, { icon: "file" })}
@@ -1073,12 +1739,17 @@
         <h3>拍摄信息</h3>
         <dl class="definition-list">
           ${definition("任务编号", item.id)}${definition("选题", item.topic)}${definition("IP", item.ip)}${definition("拍摄日期", item.date)}
-          ${definition("场地", item.location)}${definition("场景", item.scenes)}${definition("服装", item.wardrobe)}${definition("设备", item.equipment)}${definition("备注", item.note)}
+          ${definition("场地", item.location)}${definition("场景", item.scenes)}${definition("服装", item.wardrobe)}${definition("设备", item.equipment)}${definition("机位", item.cameras || "待补录")}${definition("备注", item.note)}
         </dl>
       </section>
       <section>
-        <div class="section-title-row"><h3>脚本</h3><span class="mono-label">${item.scripts.length} SCRIPTS</span></div>
-        <ul class="compact-list">${item.scripts.map((script, index) => `<li><strong>${String(index + 1).padStart(2, "0")} · ${escapeHtml(script.title)}</strong><p>${escapeHtml(script.opening)}</p><p>剪辑须知：${escapeHtml(script.editNote)}</p></li>`).join("")}</ul>
+        <div class="section-title-row"><h3>脚本</h3><span class="mono-label">${item.scripts.length} SCRIPTS</span>${button("追加脚本", "add-script", item.id, { text: true, icon: "plus", disabled: scriptEditDisabled, title: scriptEditDisabled ? "仅编导可编辑脚本" : "" })}</div>
+        <ul class="compact-list">${item.scripts.map((script, index) => `<li><strong>${String(index + 1).padStart(2, "0")} · ${escapeHtml(script.title)}</strong> ${scriptEditDisabled ? "" : `<button class="task-link" type="button" data-action="edit-script" data-id="${item.id}|${index}">编辑</button>`}<p>${escapeHtml(script.opening)}</p><p>剪辑须知：${escapeHtml(script.editNote)}</p></li>`).join("")}</ul>
+      </section>
+      <section>
+        <div class="section-title-row"><h3>拍摄版本</h3><span class="mono-label">${(item.versions || []).length} VERSIONS</span>${button("新建拍摄版本", "add-version", item.id, { text: true, icon: "plus", disabled: !can("manageVersion"), title: !can("manageVersion") ? "仅编导可管理拍摄版本" : "" })}</div>
+        <ul class="compact-list">${(item.versions || []).map((version) => `<li><strong>${escapeHtml(version.name)}</strong>${version.grade ? ` <span class="grade-badge" data-grade="${escapeHtml(version.grade)}">${escapeHtml(version.grade)} 级</span>` : ""}<p>${escapeHtml(version.date)} · ${version.scriptIndexes.length} 条脚本 · ${version.comments.length} 条评论</p>${version.note ? `<p>${escapeHtml(version.note)}</p>` : ""}</li>`).join("")}</ul>
+        <p class="section-note">版本定级与内容分析在「剪辑中心 → 选题脚本」的选题详情中维护。</p>
       </section>
       <section>
         <div class="section-title-row"><h3>原片</h3><span class="mono-label">${raws.length} FILES</span></div>
@@ -1141,7 +1812,7 @@
           </dl>
         </div>
       </div>
-      ${(item.sourceMaterialIds || []).length ? `<section><div class="section-title-row"><h3>复用来源</h3><span class="mono-label">TRACEABLE</span></div><ul class="asset-list">${item.sourceMaterialIds.map((materialId) => { const source = findMaterial(materialId); const descriptor = source ? materialDescriptor(source) : null; return `<li class="asset-item"><div class="asset-item__top"><button class="task-link" type="button" data-action="open-material" data-id="${materialId}">${escapeHtml(descriptor?.title || materialId)}</button><span class="mono-value">${escapeHtml(materialId)}</span></div><p>由内容素材库创建，审片通过后继续保留该来源关系。</p></li>`; }).join("")}</ul></section>` : ""}
+      ${(item.sourceMaterialIds || []).length ? `<section><div class="section-title-row"><h3>复用来源</h3><span class="mono-label">TRACEABLE</span></div><ul class="asset-list">${item.sourceMaterialIds.map((materialId) => { const source = findMaterial(materialId); const descriptor = source ? materialDescriptor(source) : null; return `<li class="asset-item"><div class="asset-item__top"><button class="task-link" type="button" data-action="open-material" data-id="${materialId}">${escapeHtml(descriptor?.title || materialId)}</button><span class="mono-value">${escapeHtml(materialId)}</span></div><p>由内容资产创建，审片通过后继续保留该来源关系。</p></li>`; }).join("")}</ul></section>` : ""}
       <section>
         <div class="section-title-row"><h3>可用原片</h3><span class="mono-label">${raws.length} FILES</span></div>
         <ul class="asset-list">${raws.map((raw) => `<li class="asset-item"><div class="asset-item__top"><strong>${escapeHtml(raw.fileName)}</strong><button class="button button--text" type="button" data-action="download-demo" data-id="${raw.id}">${icon("download")}下载</button></div><p>${escapeHtml(raw.shot)} · ${raw.duration} · ${raw.size}</p></li>`).join("")}</ul>
@@ -1308,15 +1979,20 @@
 
   function renderPlatformRecord(final, row) {
     const auditDisabled = !can("audit");
+    const invalid = row.status === "INVALID";
     const reopenDisabled = !can("reopenAudit") || row.status !== "REJECTED";
+    const invalidateDisabled = !can("invalidateAudit") || row.status !== "REJECTED";
     return `<li class="audit-item">
       <div class="audit-item__top"><strong>${escapeHtml(row.platform)} · ${escapeHtml(row.account)}</strong>${statusBadge(row.status, platformStatus)}</div>
       <p>素材 ID：${escapeHtml(row.materialId || "未登记")} · 发布时间：${escapeHtml(row.publishedAt || "未登记")}</p>
-      ${row.reason ? `<p>卡审原因：${escapeHtml(row.reason)}</p>` : ""}
+      ${row.reasonCategory ? `<p>原因分类：${escapeHtml(row.reasonCategory)}</p>` : ""}
+      ${row.reason ? `<p>原因原文：${escapeHtml(row.reason)}</p>` : ""}
+      ${row.screenshot ? `<p>卡审截图：${escapeHtml(row.screenshot)}</p>` : ""}
       <div class="button-row">
-        ${button("标记通过", "audit-approved", `${final.id}|${row.id}`, { disabled: auditDisabled || row.status === "APPROVED", title: auditDisabled ? "切换到投手或运营角色处理审核" : "" })}
-        ${button("标记卡审", "audit-rejected", `${final.id}|${row.id}`, { disabled: auditDisabled || row.status === "REJECTED", title: auditDisabled ? "切换到投手或运营角色处理审核" : "" })}
+        ${button("标记通过", "audit-approved", `${final.id}|${row.id}`, { disabled: auditDisabled || invalid || row.status === "APPROVED", title: auditDisabled ? "切换到投手或运营角色处理审核" : "" })}
+        ${button("标记卡审", "audit-rejected", `${final.id}|${row.id}`, { disabled: auditDisabled || invalid || row.status === "REJECTED", title: auditDisabled ? "切换到投手或运营角色处理审核" : "" })}
         ${button("重开剪辑", "reopen-audit", `${final.id}|${row.id}`, { disabled: reopenDisabled, title: reopenDisabled ? "仅卡审记录可重开剪辑" : "" })}
+        ${button("判定废片", "invalidate-audit", `${final.id}|${row.id}`, { disabled: invalidateDisabled, title: invalidateDisabled ? "仅卡审记录可判定废片" : "判定后该平台素材失效，不再占用剪辑资源" })}
       </div>
     </li>`;
   }
@@ -1662,14 +2338,38 @@
         ${field("title", "选题名称", "", { required: true, wide: true, placeholder: "请输入选题名称" })}
         ${field("topicType", "选题脚本类型", "HOME", { type: "select", options: Object.entries(topicTypeMeta), required: true, wide: true, helper: "主页脚本用于账号日常内容；投流脚本用于广告投放内容。" })}
         ${multiSelectField("businessLines", "业务线", businessLineOptions.map((line) => [line, line]), [], "支持多选；首批业务线为教育规划、大场、豆神双语。")}
+        ${field("tags", "选题标签", "", { wide: true, placeholder: "逗号分隔，例如：幼儿教育, 学习习惯", helper: "标签用于选题脚本库右侧的选题标签筛选。" })}
       </div>`,
       submit: (formData) => {
         const requiredValid = validateRequired(formData, ["topicId", "title", "topicType"]);
         const businessLinesValid = validateMultiSelect(formData, "businessLines");
         if (!requiredValid || !businessLinesValid) return false;
         const businessLines = formData.getAll("businessLines");
-        state.topics.unshift({ id: formData.get("topicId"), title: formData.get("title").trim(), topicType: formData.get("topicType"), businessLines, product: businessLines.join("、"), ip: "待分配", owner: roleMeta.director.user, scriptCount: 0, finalCount: 0, updatedAt: nowText() });
+        state.topics.unshift({ id: formData.get("topicId"), title: formData.get("title").trim(), topicType: formData.get("topicType"), businessLines, product: businessLines.join("、"), ip: "待分配", owner: roleMeta.director.user, scriptCount: 0, finalCount: 0, updatedAt: nowText(), tags: splitTags(formData.get("tags")), comments: [] });
         ensureMaterialIndex(); persist(); render(); return true;
+      }
+    });
+  }
+
+  function openImportTopicsDialog() {
+    if (!can("createTopic")) return;
+    openDialog({
+      kicker: "IMPORT TOPICS",
+      title: "导入选题",
+      submitLabel: "导入",
+      body: `<div class="form-grid">
+        ${field("lines", "选题名称", "", { type: "textarea", required: true, wide: true, helper: "每行一个选题名称；默认归为“主页脚本 · 教育规划”，导入后可再编辑标签与业务线。" })}
+      </div>`,
+      submit: (formData) => {
+        if (!validateRequired(formData, ["lines"])) return false;
+        const lines = formData.get("lines").split("\n").map((line) => line.trim()).filter(Boolean);
+        if (!lines.length) return false;
+        lines.forEach((title, index) => {
+          state.topics.unshift({ id: `TP-${String(Date.now()).slice(-8)}-${index + 1}`, title, topicType: "HOME", businessLines: ["教育规划"], product: "教育规划", ip: "待分配", owner: roleMeta[state.currentRole].user, scriptCount: 0, finalCount: 0, updatedAt: nowText(), tags: [], comments: [] });
+        });
+        persist(); render();
+        announce(`已导入 ${lines.length} 个选题。`, true, "success");
+        return true;
       }
     });
   }
@@ -1760,6 +2460,70 @@
         state.edits.unshift({ id, shootId, title: script.title, editor: formData.get("editor"), priority: formData.get("priority"), status: "TODO", due: formData.get("due"), selectedOpening: "", selectedTitle: "", revision: 0, finalId: null, history: [{ at: nowText(), actor: roleMeta.director.user, action: "分配剪辑任务", note: formData.get("note").trim() || "按正常流程处理。" }] });
         shoot.status = "IN_EDITING";
         persist(); render(); openEditDrawer(id); return true;
+      }
+    });
+  }
+
+  function openFillShootInfoDialog(shootId) {
+    const shoot = findShoot(shootId);
+    if (!shoot || !can("fillShootInfo") || !["READY_TO_SHOOT", "SHOT"].includes(shoot.status)) return;
+    const clean = (value) => (["待拍摄后补录", "待确认"].includes(value) ? "" : value);
+    openDialog({
+      kicker: "SHOOT INFO",
+      title: "补录命名信息",
+      submitLabel: "保存命名信息",
+      body: `<div class="form-grid">
+        ${field("ip", "出镜 IP", shoot.ip, { required: true })}
+        ${field("scenes", "场景", clean(shoot.scenes), { required: true, placeholder: "例如：办公桌正面、白板区" })}
+        ${field("wardrobe", "服装", clean(shoot.wardrobe), { required: true, placeholder: "例如：浅灰衬衫" })}
+        ${field("equipment", "设备", clean(shoot.equipment), { required: true, placeholder: "例如：A 机位 + 领夹麦" })}
+        ${field("cameras", "机位", clean(shoot.cameras || ""), { required: true, placeholder: "例如：双机位（A 主机位 / B 侧机位）" })}
+      </div>`,
+      submit: (formData) => {
+        if (!validateRequired(formData, ["ip", "scenes", "wardrobe", "equipment", "cameras"])) return false;
+        shoot.ip = formData.get("ip").trim();
+        shoot.scenes = formData.get("scenes").trim();
+        shoot.wardrobe = formData.get("wardrobe").trim();
+        shoot.equipment = formData.get("equipment").trim();
+        shoot.cameras = formData.get("cameras").trim();
+        if (shoot.status === "READY_TO_SHOOT") shoot.status = "SHOT";
+        ensureMaterialIndex();
+        persist(); render(); openShootDrawer(shootId);
+        announce("命名信息已补录，拍摄任务进入待上传原片。");
+        return true;
+      }
+    });
+  }
+
+  function openScriptDialog(shootId, indexValue = "") {
+    const shoot = findShoot(shootId);
+    if (!shoot || !can("editScript")) return;
+    const isEdit = indexValue !== "" && indexValue !== null && indexValue !== undefined;
+    const script = isEdit ? shoot.scripts[Number(indexValue)] : null;
+    if (isEdit && !script) return;
+    openDialog({
+      kicker: "SCRIPT",
+      title: isEdit ? "编辑脚本" : "追加脚本",
+      submitLabel: "保存脚本",
+      body: `<div class="form-grid">
+        ${field("title", "脚本标题", script?.title || "", { required: true, wide: true })}
+        ${field("opening", "开头", script?.opening || "", { type: "textarea", required: true, wide: true, helper: "用于生成拍摄文档；剪辑在任务中选择实际使用开头。" })}
+        ${field("editNote", "剪辑须知", script && script.editNote !== "待补充" ? script.editNote : "", { type: "textarea", wide: true, helper: "写明节奏、字幕、保留段落与历史卡审提醒。" })}
+      </div>`,
+      submit: (formData) => {
+        if (!validateRequired(formData, ["title", "opening"])) return false;
+        const next = {
+          title: formData.get("title").trim(),
+          opening: formData.get("opening").trim(),
+          editNote: formData.get("editNote").trim() || "待补充"
+        };
+        if (isEdit) shoot.scripts[Number(indexValue)] = next;
+        else shoot.scripts.push(next);
+        shoot.scriptCount = shoot.scripts.length;
+        ensureMaterialIndex();
+        persist(); render(); openShootDrawer(shootId);
+        announce(isEdit ? "脚本已更新。" : "脚本已追加。");
+        return true;
       }
     });
   }
@@ -1855,25 +2619,27 @@
         ${field("publishedAt", "发布时间", "2026-08-20T12:00", { type: "datetime-local", required: true })}
         ${field("status", "平台审核状态", "UNDER_REVIEW", { type: "select", options: [["UNDER_REVIEW", "平台审核中"], ["APPROVED", "审核通过"], ["REJECTED", "审核不通过"]], required: true })}
         ${field("url", "发布链接", "", { wide: true, placeholder: "可选" })}
-        ${field("reason", "卡审原因", "", { type: "textarea", wide: true, helper: "只有审核不通过时需要填写。" })}
+        ${field("reasonCategory", "卡审原因分类", "标题与文案", { type: "select", options: rejectReasonCategories.map((category) => [category, category]), helper: "只有审核不通过时需要填写。" })}
+        ${field("reason", "卡审原因原文", "", { type: "textarea", wide: true, helper: "保留平台原始原因；只有审核不通过时需要填写。" })}
+        ${field("screenshot", "卡审截图", "", { placeholder: "原型不读取本地文件，填写截图文件名或编号占位", helper: "只有审核不通过时需要填写；生产环境上传对象存储后回填链接。" })}
       </div>`,
       submit: (formData) => {
         if (!validateRequired(formData, ["platform", "account", "materialId", "publishedAt", "status"])) return false;
-        if (formData.get("status") === "REJECTED" && !formData.get("reason").trim()) {
-          validateRequired(formData, ["reason"]); return false;
-        }
-        final.platforms.push({ id: `PM-${String(Date.now()).slice(-6)}`, platform: formData.get("platform"), account: formData.get("account").trim(), materialId: formData.get("materialId").trim(), url: formData.get("url").trim(), status: formData.get("status"), publishedAt: formData.get("publishedAt").replace("T", " "), reason: formData.get("reason").trim() });
+        if (formData.get("status") === "REJECTED" && !validateRequired(formData, ["reasonCategory", "reason", "screenshot"])) return false;
+        final.platforms.push({ id: `PM-${String(Date.now()).slice(-6)}`, platform: formData.get("platform"), account: formData.get("account").trim(), materialId: formData.get("materialId").trim(), url: formData.get("url").trim(), status: formData.get("status"), publishedAt: formData.get("publishedAt").replace("T", " "), reason: formData.get("status") === "REJECTED" ? formData.get("reason").trim() : "", reasonCategory: formData.get("status") === "REJECTED" ? formData.get("reasonCategory") : "", screenshot: formData.get("status") === "REJECTED" ? formData.get("screenshot").trim() : "" });
         persist(); render(); openFinalDrawer(finalId); return true;
       }
     });
   }
 
-  function updateAudit(finalId, rowId, status, reason = "") {
+  function updateAudit(finalId, rowId, status, reason = "", extra = {}) {
     const final = findFinal(finalId);
     const row = final?.platforms.find((item) => item.id === rowId);
     if (!row || !can("audit")) return;
     row.status = status;
     row.reason = status === "REJECTED" ? reason : "";
+    row.reasonCategory = status === "REJECTED" ? extra.reasonCategory || "" : "";
+    row.screenshot = status === "REJECTED" ? extra.screenshot || "" : "";
     persist(); render(); openFinalDrawer(finalId);
   }
 
@@ -1883,10 +2649,47 @@
       kicker: "PLATFORM AUDIT",
       title: "登记平台卡审",
       submitLabel: "保存卡审结果",
-      body: `<div class="form-grid">${field("reason", "卡审原因", "", { type: "textarea", required: true, wide: true, helper: "保留平台原始原因，并补充人工判断。" })}</div>`,
+      body: `<div class="form-grid">
+        ${field("reasonCategory", "原因分类", "标题与文案", { type: "select", options: rejectReasonCategories.map((category) => [category, category]), required: true, helper: "按平台规则归类，供卡审复盘统计。" })}
+        ${field("reason", "原因原文", "", { type: "textarea", required: true, wide: true, helper: "保留平台原始原因，并补充人工判断。" })}
+        ${field("screenshot", "卡审截图", "", { required: true, placeholder: "原型不读取本地文件，填写截图文件名或编号占位", helper: "生产环境上传对象存储后回填链接。" })}
+      </div>`,
+      submit: (formData) => {
+        if (!validateRequired(formData, ["reasonCategory", "reason", "screenshot"])) return false;
+        updateAudit(finalId, rowId, "REJECTED", formData.get("reason").trim(), { reasonCategory: formData.get("reasonCategory"), screenshot: formData.get("screenshot").trim() });
+        return true;
+      }
+    });
+  }
+
+  function openInvalidateDialog(finalId, rowId) {
+    const final = findFinal(finalId);
+    const row = final?.platforms.find((item) => item.id === rowId);
+    if (!final || !row || row.status !== "REJECTED" || !can("invalidateAudit")) return;
+    openDialog({
+      kicker: "PLATFORM AUDIT",
+      title: "判定为废片",
+      submitLabel: "确认判定废片",
+      body: `<div class="form-grid">${field("reason", "判废依据", "", { type: "textarea", required: true, wide: true, helper: `判定后「${escapeHtml(row.platform)} · ${escapeHtml(row.account)}」的平台素材失效，不再占用剪辑资源；判断结果对编导、运营、投手共同可见。` })}</div>`,
       submit: (formData) => {
         if (!validateRequired(formData, ["reason"])) return false;
-        updateAudit(finalId, rowId, "REJECTED", formData.get("reason").trim());
+        const reason = formData.get("reason").trim();
+        row.status = "INVALID";
+        row.reason = `${row.reason ? `${row.reason}；` : ""}判废依据：${reason}`;
+        const edit = findEdit(final.editId);
+        if (edit) edit.history.push({ at: nowText(), actor: roleMeta[state.currentRole].user, action: `判定${row.platform}素材为废片`, note: reason });
+        if (final.platforms.length && final.platforms.every((item) => item.status === "INVALID")) {
+          const material = findMaterial(`MAT-FINAL-${final.id}`);
+          if (material) {
+            material.stage = "ARCHIVED";
+            material.availability = "RETIRED";
+            material.note = "全部平台记录判定废片，素材失效，流程结束。";
+            material.updatedAt = nowText();
+          }
+        }
+        ensureMaterialIndex();
+        persist(); render(); openFinalDrawer(finalId);
+        announce("已判定为废片，平台素材失效。", true, "error");
         return true;
       }
     });
@@ -1932,6 +2735,7 @@
   function buildCommandItems(query = "") {
     const items = [
       ...Object.entries(viewMeta).map(([view, meta]) => ({ key: `view-${view}`, label: meta.label, meta: "功能", run: () => switchView(view) })),
+      ...state.topics.map((item) => ({ key: item.id, label: item.title, meta: `选题 · ${item.id}`, run: () => openTopicDrawer(item.id) })),
       ...state.shoots.map((item) => ({ key: item.id, label: item.name, meta: `拍摄任务 · ${item.id}`, run: () => openShootDrawer(item.id) })),
       ...state.edits.map((item) => ({ key: item.id, label: item.title, meta: `剪辑任务 · ${item.id}`, run: () => openEditDrawer(item.id) })),
       ...state.finals.map((item) => ({ key: item.id, label: item.title, meta: `视频成片 · ${item.id}`, run: () => openFinalDrawer(item.id) })),
@@ -1977,11 +2781,22 @@
     if (type === "edit") openEditDrawer(id);
     if (type === "final") openFinalDrawer(id);
     if (type === "material") openMaterialDrawer(id);
+    if (type === "topic") openTopicDrawer(id);
+    if (type === "script-preview") { const [shootId, ...rest] = id.split("|"); openScriptPreview(shootId, rest.join("|")); }
   }
 
   document.querySelector(".primary-nav").addEventListener("click", (event) => {
+    const parent = event.target.closest(".nav-group__parent");
+    if (parent && (event.target.closest(".nav-chevron") || !parent.dataset.view)) {
+      const group = parent.closest(".nav-group");
+      const collapsed = group.classList.toggle("is-collapsed");
+      parent.setAttribute("aria-expanded", String(!collapsed));
+      return;
+    }
     const target = event.target.closest("[data-view]");
-    if (target) switchView(target.dataset.view);
+    if (!target) return;
+    if (typeof target.dataset.materialType !== "undefined") runtime.filters.materialType = target.dataset.materialType;
+    switchView(target.dataset.view);
   });
 
   el.view.addEventListener("input", (event) => {
@@ -2007,8 +2822,18 @@
     else if (action === "open-edit") openEditDrawer(id);
     else if (action === "open-final") openFinalDrawer(id);
     else if (action === "open-material") openMaterialDrawer(id);
+    else if (action === "open-topic") openTopicDrawer(id);
+    else if (action === "add-version") openCreateVersionDialog(id);
+    else if (action === "grade-version") { const [shootId, versionId, grade] = id.split("|"); gradeVersion(shootId, versionId, grade); }
+    else if (action === "save-analysis") saveAnalysis(id);
+    else if (action === "add-comment") addComment(id);
+    else if (action === "edit-comment") { const sep = id.lastIndexOf("|"); openEditCommentDialog(id.slice(0, sep), id.slice(sep + 1)); }
+    else if (action === "delete-comment") { const sep = id.lastIndexOf("|"); deleteComment(id.slice(0, sep), id.slice(sep + 1)); }
     else if (action === "create-shoot") openCreateShootDialog();
     else if (action === "create-topic") openCreateTopicDialog();
+    else if (action === "import-topics") openImportTopicsDialog();
+    else if (action === "filter-topic-tag") { runtime.filters.topicTag = target.dataset.tag; render(); }
+    else if (action === "filter-topic-perf") { runtime.filters.topicPerf = runtime.filters.topicPerf === target.dataset.perf ? "ALL" : target.dataset.perf; render(); }
     else if (action === "clear-filter") { runtime.filters[target.dataset.filter] = ""; render(); }
     else if (action === "filter-edit-status") { runtime.filters.editStatus = target.dataset.status; render(); }
     else if (action === "filter-material-type") { runtime.filters.materialType = target.dataset.materialType; render(); }
@@ -2030,7 +2855,15 @@
     else if (action === "update-material-stage") openUpdateMaterialStageDialog(id);
     else if (action === "create-reedit-from-material") openCreateReeditDialog(id);
     else if (action === "upload-raw") openRawUploadDialog(id);
+    else if (action === "download-scripts") downloadFilteredScripts();
+    else if (action === "download-script") { const [shootId, ...rest] = id.split("|"); downloadScriptAsset(shootId, rest.join("|")); }
+    else if (action === "filter-library-collection") { runtime.filters.libraryCollection = id || "ALL"; render(); }
+    else if (action === "filter-library-type") { runtime.filters.libraryType = target.dataset.kind; render(); }
+    else if (action === "open-script-preview") { const [shootId, ...rest] = id.split("|"); openScriptPreview(shootId, rest.join("|")); }
     else if (action === "assign-edit") openAssignEditDialog(id);
+    else if (action === "fill-shoot-info") openFillShootInfoDialog(id);
+    else if (action === "add-script") openScriptDialog(id);
+    else if (action === "edit-script") { const [shootId, indexValue] = id.split("|"); openScriptDialog(shootId, indexValue); }
     else if (action === "start-edit") startEdit(id);
     else if (action === "submit-edit") openSubmitEditDialog(id);
     else if (action === "approve-edit") approveEdit(id);
@@ -2039,6 +2872,7 @@
     else if (action === "audit-approved") { const [finalId, rowId] = id.split("|"); updateAudit(finalId, rowId, "APPROVED"); }
     else if (action === "audit-rejected") { const [finalId, rowId] = id.split("|"); openAuditRejectDialog(finalId, rowId); }
     else if (action === "reopen-audit") { const [finalId, rowId] = id.split("|"); reopenFromAudit(finalId, rowId); }
+    else if (action === "invalidate-audit") { const [finalId, rowId] = id.split("|"); openInvalidateDialog(finalId, rowId); }
     else if (action === "print-shoot") { window.print(); }
     else if (action === "preview-demo") showToast("这是交互原型的预览占位；接入媒体服务后播放转码代理文件。", "neutral");
     else if (action === "download-demo") showToast("这是演示数据，未连接真实文件下载地址。", "neutral");
@@ -2066,6 +2900,11 @@
 
   el.dialogForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (event.submitter?.value === "cancel") {
+      el.dialog.close();
+      runtime.dialogSubmit = null;
+      return;
+    }
     if (!runtime.dialogSubmit) return;
     const result = runtime.dialogSubmit(new FormData(el.dialogForm));
     if (result !== false) {
@@ -2110,6 +2949,8 @@
     const previous = clone(state);
     state = seedState();
     ensureTopicSchema();
+    ensureVersionSchema();
+    ensureRawAssetSchema();
     ensureMaterialIndex();
     persist(); render(); closeMobileNav(); closeDrawer();
     showToast("演示数据已重置。", "neutral", { label: "撤销", run: () => { state = previous; persist(); render(); } });
