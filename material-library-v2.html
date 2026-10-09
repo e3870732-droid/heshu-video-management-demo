@@ -1719,6 +1719,11 @@ const renderReviewCollectionLibraryPlatformAligned=renderReviewCollectionLibrary
 renderReviewCollectionLibrary=function(){
  renderReviewCollectionLibraryPlatformAligned();
  if(state.reviewLibraryType==='all')$$('.review-collection-card .card-kicker .tags:nth-child(2),.review-collection-card .review-card-classification .right').forEach(node=>node.remove());
+ const activeSearchQuery=state.reviewQuery;
+ if(reviewNormalize(activeSearchQuery)){
+  const counts={all:reviewCollectionResults().length,topic:reviewLibraryRows('topic').length,raw:reviewLibraryRows('raw').length,final:reviewLibraryRows('final').length,mixed:reviewLibraryRows('mixed').length};
+  $$('[data-review-library-type]').forEach(button=>{button.insertAdjacentHTML('beforeend',`<span class="review-tab-search-count">${counts[button.dataset.reviewLibraryType]||0}</span>`);button.onclick=()=>{reviewSaveActiveTabState();const scrollY=reviewRestoreTabState(button.dataset.reviewLibraryType);state.reviewQuery=activeSearchQuery;reviewSanitizeFiltersForType(state.reviewLibraryType);renderReviewCollectionLibrary();requestAnimationFrame(()=>window.scrollTo(0,scrollY))}});
+ }
  $$('[data-review-related-topics]').forEach(button=>button.onclick=()=>reviewChooseRelatedTopic(button.dataset.reviewRelatedTopics.split(',').filter(Boolean)));
  $$('[data-review-library-preview]').forEach(button=>button.onclick=()=>{const kind=button.dataset.reviewLibraryPreviewKind||state.reviewLibraryType;openMediaPreview(button.dataset.reviewLibraryPreview,button.dataset.reviewLibraryPreviewMeta,{kind,download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewLibraryPreview}”下载任务`)})});
 };
@@ -1759,6 +1764,8 @@ render();
 .review-library-final-card .review-mixed-people>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .review-library-final-card .review-mixed-people b{margin-right:6px;color:#8a95a5;font-weight:400}
 .review-library-final-card .review-mixed-script-type{flex:none}
+.review-tab-search-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:5px;padding:0 5px;border-radius:9px;background:#e9edf4;color:#66758a;font-size:11px;font-weight:600;line-height:18px}
+.review-content-tab.on .review-tab-search-count{background:#e8f1ff;color:#1677ff}
 @media(max-width:700px){.center-modal.review-topic-choice-modal{width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)}}
 </style>
 </body>
