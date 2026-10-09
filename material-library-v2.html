@@ -1705,6 +1705,7 @@ function reviewChooseRelatedTopic(topicIds){
  const choices=topicIds.map(id=>reviewCollectionTopics.find(item=>String(item.id)===String(id))).filter(Boolean);
  if(choices.length<=1){if(choices[0])reviewEnterTopic(choices[0].id);return}
  openCenterModal('选择要查看的选题',`<div class="review-topic-choice-list">${choices.map((topic,index)=>{const collection=reviewCollections.find(item=>item.id===topic.collectionId);return `<label class="raw-browser-row"><input type="radio" name="reviewTopicChoice" value="${safeText(topic.id)}" ${index===0?'checked':''}><span class="raw-browser-info"><b>${safeText(topic.name)}</b><small>${safeText(collection?.name||'—')} · ${reviewTopicScripts(topic).length} 份脚本</small></span></label>`}).join('')}</div>`,`<button class="btn ghost" data-center-close>取消</button><button class="btn primary" id="reviewConfirmTopicChoice">查看选中选题</button>`);
+ $('#centerMask .center-modal')?.classList.add('review-topic-choice-modal');
  $('#reviewConfirmTopicChoice').onclick=()=>{const selected=$('input[name="reviewTopicChoice"]:checked');if(!selected)return;closeCenterModal();reviewEnterTopic(selected.value)};
 }
 reviewLibraryTopicCard=function({topic,collection,hit}){const hitCopy=hit?.deep?`${hit.label}：${hit.value}`:'',directions=(topic.directions||[]).join('、')||'—',amateur=topic.amateur||'—';return `<article class="review-topic-card topic-card review-library-topic-card"><div class="card-body"><div class="card-kicker"><div class="tags">${reviewTags(topic.usages,'usage')}</div></div><div class="review-topic-title-row"><h3 title="${safeText(topic.name)}">${safeText(topic.name)}</h3><div class="review-topic-title-side">${hitCopy?'<span class="review-hit-badge">搜索命中</span>':''}<span class="review-topic-director" title="${safeText(topic.director)}">${safeText(topic.director)}</span></div></div><div class="review-topic-info-lines"><div class="review-topic-info-line" title="${safeText(collection?.name||'')}"><b>所属合集</b><span>${safeText(collection?.name||'—')}</span></div><div class="review-topic-info-line" title="${safeText(topic.line)}"><b>业务线</b><span>${safeText(topic.line)}</span></div><div class="review-topic-info-line" title="${safeText(topic.product)}"><b>产品线</b><span>${safeText(topic.product)}</span></div><div class="review-topic-info-line" title="${safeText(topic.ip)}"><b>出镜 IP</b><span>${safeText(topic.ip)}</span></div><div class="review-topic-info-line" title="${safeText(amateur)}"><b>出镜素人</b><span>${safeText(amateur)}</span></div><div class="review-topic-info-line" title="${safeText(directions)}"><b>选题方向</b><span>${safeText(directions)}</span></div></div><div class="card-foot"><span class="updated">更新 ${topic.updated}</span><div class="ops"><button class="btn text" data-review-library-topic="${topic.id}">查看</button></div></div></div></article>`};
@@ -1740,6 +1741,16 @@ render=renderReviewRouter;
 window.addEventListener('beforeunload',event=>{if(!parseHasUnsavedChanges())return;event.preventDefault();event.returnValue='' });
 render();
 </script>
-<style>.drawer-form [hidden]{display:none!important}</style>
+<style>
+.drawer-form [hidden]{display:none!important}
+.center-mask.open:has(.review-topic-choice-modal){align-items:center;justify-content:center;padding:24px}
+.center-modal.review-topic-choice-modal{width:min(640px,calc(100vw - 48px))!important;min-width:0;height:auto;min-height:0;max-height:min(720px,calc(100vh - 48px));align-self:auto;border-radius:12px;box-shadow:0 22px 60px rgba(29,33,41,.24);animation:none}
+.review-topic-choice-modal .center-modal-body{padding:16px 20px}
+.review-topic-choice-list{display:grid;gap:10px}
+.review-topic-choice-list .raw-browser-row{grid-template-columns:22px minmax(0,1fr);min-height:72px;padding:14px 16px;border:1px solid #e2e7ef;border-radius:10px}
+.review-topic-choice-list .raw-browser-row:hover{border-color:#9fc2f3;background:#f6f9fe}
+.review-topic-choice-list .raw-browser-info b,.review-topic-choice-list .raw-browser-info small{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:700px){.center-modal.review-topic-choice-modal{width:calc(100vw - 24px)!important;max-height:calc(100vh - 24px)}}
+</style>
 </body>
 </html>
