@@ -1749,7 +1749,7 @@ renderReviewTopicDetail=function(){
  const classification=$('.review-topic-classification');if(classification?.children[1])classification.children[1].remove();
  const platformEditor=$('[data-review-field="platforms"]');if(platformEditor)platformEditor.hidden=true;
  const topic=state.topic,scripts=topic?reviewTopicScripts(topic):[],scriptIndex=Math.max(0,scripts.findIndex(item=>item.id===state.reviewScriptId)),finalAssets=topic?reviewFinalAssets(topic,scriptIndex):[];
- if(!state.reviewFormalEditing)$$('.review-final-card').forEach((card,index)=>{const asset=finalAssets[index],meta=card.querySelector('.review-final-meta');if(!asset||!meta)return;meta.innerHTML=`<span><b>剪辑师</b>${safeText(asset.editor||'-')}</span><span><b>剪辑日期</b>${safeText(asset.date||'-')}</span><span><b>平台</b>${safeText(reviewUnique(asset.platforms).join('、')||'-')}</span><span><b>剪辑方向</b>${safeText(asset.editDirection||'-')}</span><span><b>视频类型</b>${safeText(asset.videoType||'-')}</span><span><b>开头</b>${safeText(asset.opening||'-')}</span>`});
+ if(!state.reviewFormalEditing)$$('.review-final-card').forEach((card,index)=>{const asset=finalAssets[index],meta=card.querySelector('.review-final-meta');if(!asset||!meta)return;const platforms=reviewTags(asset.platforms,'platform')||'-',direction=asset.editDirection?tag(safeText(asset.editDirection),'orange'):'-',videoType=asset.videoType?tag(safeText(asset.videoType),'blue'):'-',opening=asset.opening?tag(safeText(asset.opening),'cyan'):'-';meta.innerHTML=`<span><b>剪辑师</b>${safeText(asset.editor||'-')}</span><span><b>剪辑日期</b>${safeText(asset.date||'-')}</span><span><b>平台</b>${platforms}</span><span><b>剪辑方向</b>${direction}</span><span><b>视频类型</b>${videoType}</span><span><b>开头</b>${opening}</span>`});
  $$('[data-review-raw-preview]').forEach(button=>button.onclick=()=>openMediaPreview(button.dataset.reviewRawPreview,button.dataset.reviewRawMeta,{kind:'raw',download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewRawPreview}”下载任务`)}));
  $$('[data-review-final-preview]').forEach(button=>button.onclick=()=>openMediaPreview(button.dataset.reviewFinalPreview,button.dataset.reviewFinalMeta,{kind:'final',download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewFinalPreview}”下载任务`)}));
 };
@@ -1800,6 +1800,9 @@ render();
 .review-final-card h3{display:flex;align-items:baseline;gap:10px}
 .review-final-card h3>span{min-width:0;overflow-wrap:anywhere}
 .review-final-card h3>small{flex:none;color:#8a95a5;font-size:12px;font-weight:400}
+.review-final-meta>span{display:inline-flex;align-items:center;gap:5px}
+.review-final-meta>span>b{margin-right:2px}
+.review-final-meta .tag{margin:0}
 .review-final-duration{position:absolute;right:8px;bottom:8px;padding:2px 6px;border-radius:4px;background:rgba(16,29,48,.78);color:#fff;font-size:11px;line-height:18px}
 .review-final-staff-fields{display:flex;align-items:center;gap:18px;margin-top:0}
 .review-final-staff-fields>label,.review-final-edit-fields>label{display:flex;align-items:center;gap:6px;min-width:0;margin:0}
