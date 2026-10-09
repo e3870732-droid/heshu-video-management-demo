@@ -1724,7 +1724,8 @@ renderReviewCollectionLibrary=function(){
  $$('.review-library-final-card [data-review-library-topic]').forEach(button=>addCardDownload(button,button.closest('.review-library-final-card')?.querySelector('.review-library-final-title h3')?.textContent||'成片'));
  const activeSearchQuery=state.reviewQuery;
  if(reviewNormalize(activeSearchQuery)){
-  const counts={all:reviewCollectionResults().length,topic:reviewLibraryRows('topic').length,raw:reviewLibraryRows('raw').length,final:reviewLibraryRows('final').length,mixed:reviewLibraryRows('mixed').length};
+ const counts={all:reviewCollectionResults().length,topic:reviewLibraryRows('topic').length,raw:reviewLibraryRows('raw').length,final:reviewLibraryRows('final').length,mixed:reviewLibraryRows('mixed').length};
+  $('.review-result-count')?.remove();
   $$('[data-review-library-type]').forEach(button=>{button.insertAdjacentHTML('beforeend',`<span class="review-tab-search-count">${counts[button.dataset.reviewLibraryType]||0}</span>`);button.onclick=()=>{reviewSaveActiveTabState();const scrollY=reviewRestoreTabState(button.dataset.reviewLibraryType);state.reviewQuery=activeSearchQuery;reviewSanitizeFiltersForType(state.reviewLibraryType);renderReviewCollectionLibrary();requestAnimationFrame(()=>window.scrollTo(0,scrollY))}});
  }
  $$('[data-review-related-topics]').forEach(button=>button.onclick=()=>reviewChooseRelatedTopic(button.dataset.reviewRelatedTopics.split(',').filter(Boolean)));
