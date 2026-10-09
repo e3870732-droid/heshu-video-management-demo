@@ -1691,6 +1691,51 @@ function renderReviewRouter(){
  if(state.view==='library'){if(state.topic)return renderReviewTopicDetail();if(state.collectionId)return renderReviewCollectionDetail();return renderReviewCollectionLibrary()}
  state.collectionId=null;state.topic=null;if(state.view==='tasks')renderTasks();else if(state.view==='processed')renderTaskOperationRecord();else if(state.view==='parseResult'&&state.reviewActiveTaskKind==='mixed')renderMixedParseResultReused();else if(state.view==='parseResult')openFeishuParseResult(true,state.resultFocusIssues);else renderPlaceholder();reviewWireGlobalNavigation();
 }
+
+/* 平台只属于成片；原片可关联多个选题；原片与成片预览统一提供下载。 */
+function reviewRawRelatedTopicIds(topic,asset){
+ const related=reviewCollectionTopics.filter(candidate=>reviewRawAssets(candidate).some(item=>item.name===asset.name)).map(item=>item.id);
+ return [...new Set([topic.id,...related])].slice(0,4);
+}
+function reviewEnterTopic(topicId,scriptId=1){
+ const topic=reviewCollectionTopics.find(item=>String(item.id)===String(topicId));if(!topic)return;
+ reviewPushNavContext(reviewLibraryNavContext());state.collectionId=topic.collectionId;state.topic=topic;state.reviewScriptId=Number(scriptId)||1;state.reviewRawSelected=[];state.reviewFormalEditing=false;render();
+}
+function reviewChooseRelatedTopic(topicIds){
+ const choices=topicIds.map(id=>reviewCollectionTopics.find(item=>String(item.id)===String(id))).filter(Boolean);
+ if(choices.length<=1){if(choices[0])reviewEnterTopic(choices[0].id);return}
+ openCenterModal('选择要查看的选题',`<div class="review-topic-choice-list">${choices.map((topic,index)=>{const collection=reviewCollections.find(item=>item.id===topic.collectionId);return `<label class="raw-browser-row"><input type="radio" name="reviewTopicChoice" value="${safeText(topic.id)}" ${index===0?'checked':''}><span class="raw-browser-info"><b>${safeText(topic.name)}</b><small>${safeText(collection?.name||'—')} · ${reviewTopicScripts(topic).length} 份脚本</small></span></label>`}).join('')}</div>`,`<button class="btn ghost" data-center-close>取消</button><button class="btn primary" id="reviewConfirmTopicChoice">查看选中选题</button>`);
+ $('#reviewConfirmTopicChoice').onclick=()=>{const selected=$('input[name="reviewTopicChoice"]:checked');if(!selected)return;closeCenterModal();reviewEnterTopic(selected.value)};
+}
+reviewLibraryTopicCard=function({topic,collection,hit}){const hitCopy=hit?.deep?`${hit.label}：${hit.value}`:'',directions=(topic.directions||[]).join('、')||'—',amateur=topic.amateur||'—';return `<article class="review-topic-card topic-card review-library-topic-card"><div class="card-body"><div class="card-kicker"><div class="tags">${reviewTags(topic.usages,'usage')}</div></div><div class="review-topic-title-row"><h3 title="${safeText(topic.name)}">${safeText(topic.name)}</h3><div class="review-topic-title-side">${hitCopy?'<span class="review-hit-badge">搜索命中</span>':''}<span class="review-topic-director" title="${safeText(topic.director)}">${safeText(topic.director)}</span></div></div><div class="review-topic-info-lines"><div class="review-topic-info-line" title="${safeText(collection?.name||'')}"><b>所属合集</b><span>${safeText(collection?.name||'—')}</span></div><div class="review-topic-info-line" title="${safeText(topic.line)}"><b>业务线</b><span>${safeText(topic.line)}</span></div><div class="review-topic-info-line" title="${safeText(topic.product)}"><b>产品线</b><span>${safeText(topic.product)}</span></div><div class="review-topic-info-line" title="${safeText(topic.ip)}"><b>出镜 IP</b><span>${safeText(topic.ip)}</span></div><div class="review-topic-info-line" title="${safeText(amateur)}"><b>出镜素人</b><span>${safeText(amateur)}</span></div><div class="review-topic-info-line" title="${safeText(directions)}"><b>选题方向</b><span>${safeText(directions)}</span></div></div><div class="card-foot"><span class="updated">更新 ${topic.updated}</span><div class="ops"><button class="btn text" data-review-library-topic="${topic.id}">查看</button></div></div></div></article>`};
+reviewLibraryRawCard=function({topic,asset}){const meta=[asset.scene||'未分组',asset.device,asset.position].filter(Boolean).join(' · '),shootMeta=[asset.camera,asset.date].filter(Boolean).join(' · '),topicIds=reviewRawRelatedTopicIds(topic,asset);return `<article class="review-library-asset-card review-library-raw-card"><button class="review-library-asset-preview" type="button" data-review-library-preview="${safeText(asset.name)}" data-review-library-preview-meta="${safeText(meta)}" data-review-library-preview-kind="raw">${reviewLibraryMediaPlaceholder()}<span class="review-raw-play">▶</span><span class="review-library-asset-duration">${safeText(asset.duration)}</span></button><div class="review-library-asset-body"><div class="review-library-raw-title"><h3 title="${safeText(asset.name)}">${safeText(asset.name)}</h3><span class="review-library-raw-size">${safeText(asset.size)}</span></div><div class="review-library-asset-foot"><span title="${safeText(shootMeta)}">${safeText(shootMeta)}</span><button class="btn text" data-review-related-topics="${safeText(topicIds.join(','))}">查看选题</button></div></div></article>`};
+reviewLibraryFinalCard=function({topic,collection,script,asset}){const platforms=reviewUnique(asset.platforms).join('、')||'-';return `<article class="review-library-asset-card review-library-final-card"><button class="review-library-asset-preview" type="button" data-review-library-preview="${safeText(asset.name)}" data-review-library-preview-meta="${safeText(`${asset.editor} · ${asset.date}`)}" data-review-library-preview-kind="final">${reviewLibraryMediaPlaceholder()}<span class="review-raw-play">▶</span><span class="review-library-asset-duration">${safeText(asset.duration)}</span></button><div class="review-library-asset-body"><div class="review-library-final-title"><h3 title="${safeText(asset.name)}">${safeText(asset.name)}</h3><span class="review-library-final-size">${safeText(asset.size||'—')}</span></div><div class="tags" title="平台：${safeText(platforms)}">${asset.platforms?.length?reviewTags(asset.platforms,'platform'):'<span class="readonly">平台 -</span>'}</div><div class="review-library-asset-path" title="${safeText(`${collection?.name||''} / ${topic.name} / ${script?.fullName||''}`)}">${safeText(collection?.name||'—')} / ${safeText(topic.name)} / ${safeText(script?.fullName||'脚本')}</div><div class="review-library-asset-foot"><span>${safeText(asset.editor)} · ${safeText(asset.date)}</span><button class="btn text" data-review-library-topic="${topic.id}" data-review-library-script="${safeText(script?.id||1)}">查看选题</button></div></div></article>`};
+
+const renderReviewCollectionLibraryPlatformAligned=renderReviewCollectionLibrary;
+renderReviewCollectionLibrary=function(){
+ renderReviewCollectionLibraryPlatformAligned();
+ if(state.reviewLibraryType==='all')$$('.review-collection-card .card-kicker .tags:nth-child(2),.review-collection-card .review-card-classification .right').forEach(node=>node.remove());
+ $$('[data-review-related-topics]').forEach(button=>button.onclick=()=>reviewChooseRelatedTopic(button.dataset.reviewRelatedTopics.split(',').filter(Boolean)));
+ $$('[data-review-library-preview]').forEach(button=>button.onclick=()=>{const kind=button.dataset.reviewLibraryPreviewKind||state.reviewLibraryType;openMediaPreview(button.dataset.reviewLibraryPreview,button.dataset.reviewLibraryPreviewMeta,{kind,download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewLibraryPreview}”下载任务`)})});
+};
+
+const renderReviewCollectionDetailPlatformAligned=renderReviewCollectionDetail;
+renderReviewCollectionDetail=function(){
+ renderReviewCollectionDetailPlatformAligned();
+ $$('.review-topic-card .card-kicker .tags:nth-child(2)').forEach(node=>node.remove());
+ $$('.review-topic-card-head .tags .tag.platform-douyin,.review-topic-card-head .tags .tag.platform-xiaohongshu,.review-topic-card-head .tags .tag.platform-wechat').forEach(node=>node.remove());
+};
+
+const renderReviewTopicDetailPlatformAligned=renderReviewTopicDetail;
+renderReviewTopicDetail=function(){
+ renderReviewTopicDetailPlatformAligned();
+ const classification=$('.review-topic-classification');if(classification?.children[1])classification.children[1].remove();
+ const platformEditor=$('[data-review-field="platforms"]');if(platformEditor)platformEditor.hidden=true;
+ const topic=state.topic,scripts=topic?reviewTopicScripts(topic):[],scriptIndex=Math.max(0,scripts.findIndex(item=>item.id===state.reviewScriptId)),finalAssets=topic?reviewFinalAssets(topic,scriptIndex):[];
+ $$('.review-final-card').forEach((card,index)=>{const asset=finalAssets[index],meta=card.querySelector('.review-final-meta');if(!asset||!meta)return;meta.insertAdjacentHTML('afterbegin',`<span><b>平台</b>${safeText(reviewUnique(asset.platforms).join('、')||'-')}</span>`)});
+ $$('[data-review-raw-preview]').forEach(button=>button.onclick=()=>openMediaPreview(button.dataset.reviewRawPreview,button.dataset.reviewRawMeta,{kind:'raw',download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewRawPreview}”下载任务`)}));
+ $$('[data-review-final-preview]').forEach(button=>button.onclick=()=>openMediaPreview(button.dataset.reviewFinalPreview,button.dataset.reviewFinalMeta,{kind:'final',download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewFinalPreview}”下载任务`)}));
+};
 render=renderReviewRouter;
 window.addEventListener('beforeunload',event=>{if(!parseHasUnsavedChanges())return;event.preventDefault();event.returnValue='' });
 render();
