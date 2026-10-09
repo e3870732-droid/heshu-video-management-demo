@@ -1280,7 +1280,7 @@ function reviewPlatformPass(selected,platforms){
  if(actual.includes('全平台'))return true;
  return selected.some(value=>actual.includes(value));
 }
-function reviewRawFilterPass(asset,filters){return (!filters.dateStart||asset.date>=filters.dateStart)&&(!filters.dateEnd||asset.date<=filters.dateEnd)&&reviewArrayPass(filters.scene,asset.scene)&&reviewArrayPass(filters.device,asset.device)&&reviewArrayPass(filters.position,asset.position)}
+function reviewRawFilterPass(asset,filters){return (!filters.dateStart||asset.date>=filters.dateStart)&&(!filters.dateEnd||asset.date<=filters.dateEnd)&&reviewArrayPass(filters.camera,asset.camera)&&reviewArrayPass(filters.scene,asset.scene)&&reviewArrayPass(filters.device,asset.device)&&reviewArrayPass(filters.position,asset.position)}
 function reviewDateRangePass(value,filters){return (!filters.dateStart||value>=filters.dateStart)&&(!filters.dateEnd||value<=filters.dateEnd)}
 function reviewFinalFilterPass(asset,filters){return reviewPlatformPass(filters.platform,asset.platforms)&&reviewArrayPass(filters.editor,asset.editor)&&reviewDateRangePass(asset.editDate||asset.date,filters)}
 function reviewTopicFilterPass(topic,filters){
@@ -1330,7 +1330,7 @@ function reviewFilterOptions(key){
  const newestTopics=[...reviewCollectionTopics].sort((a,b)=>String(b.updated).localeCompare(String(a.updated)));
  const collectionOrder=[...reviewCollections].sort((a,b)=>String(b.updated).localeCompare(String(a.updated)));
  const finalEditors=reviewUnique(newestTopics.flatMap(topic=>reviewTopicScripts(topic).flatMap((script,index)=>reviewFinalAssets(topic,index).map(asset=>asset.editor))));
- const map={collectionId:collectionOrder.map(collection=>({id:collection.id,name:collection.name})),topicId:newestTopics.map(topic=>({id:topic.id,name:topic.name})),direction:reviewUnique(reviewCollectionTopics.flatMap(topic=>topic.directions||[])),line:reviewUnique(reviewCollectionTopics.map(topic=>topic.line)),product:reviewUnique(reviewCollectionTopics.map(topic=>topic.product)),usage:['投流','主页'],platform:['全平台','抖音','小红书','视频号','快手'],director:reviewUnique(reviewCollectionTopics.map(topic=>topic.director)),ip:reviewUnique(reviewCollectionTopics.map(topic=>topic.ip)),editor:finalEditors,scriptType:['强IP','强营销','强痛点'],scene:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewRawAssets(topic).map(asset=>asset.scene))),device:['手机','相机'],position:['正机位','侧机位']};return map[key]||[];
+ const map={collectionId:collectionOrder.map(collection=>({id:collection.id,name:collection.name})),topicId:newestTopics.map(topic=>({id:topic.id,name:topic.name})),direction:reviewUnique(reviewCollectionTopics.flatMap(topic=>topic.directions||[])),line:reviewUnique(reviewCollectionTopics.map(topic=>topic.line)),product:reviewUnique(reviewCollectionTopics.map(topic=>topic.product)),usage:['投流','主页'],platform:['全平台','抖音','小红书','视频号','快手'],director:reviewUnique(reviewCollectionTopics.map(topic=>topic.director)),camera:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewRawAssets(topic).map(asset=>asset.camera))),ip:reviewUnique(reviewCollectionTopics.map(topic=>topic.ip)),editor:finalEditors,scriptType:['强IP','强营销','强痛点'],scene:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewRawAssets(topic).map(asset=>asset.scene))),device:['手机','相机'],position:['正机位','侧机位']};return map[key]||[];
 }
 function reviewFilterSelect(key,label){return `<select class="field" id="review-${key}" multiple aria-label="${label}"><option value="">${label}</option>${reviewFilterOptions(key).map(value=>`<option value="${safeText(typeof value==='object'?value.id:value)}">${safeText(typeof value==='object'?value.name:value)}</option>`).join('')}</select>`}
 function reviewFinalScriptSelect(){
@@ -1411,7 +1411,7 @@ renderReviewCollectionLibrary=function(){
 	 const contextual={all:[],topic:[reviewFilterSelect('collectionId','合集'),reviewFilterSelect('direction','选题方向'),collectionDateRange('topicUpdated','更新日期')],raw:[],final:[],mixed:[]}[libraryType];
  const topicFilterFields=[reviewFilterSelect('usage','用途'),reviewFilterSelect('direction','选题方向'),reviewFilterSelect('director','编导'),reviewFilterSelect('collectionId','合集'),reviewFilterSelect('line','业务线'),reviewFilterSelect('product','产品线')].join('');
 	 const topicSecondaryFields=[reviewFilterSelect('ip','出镜 IP'),collectionDateRange('topicUpdated','更新日期')].join('');
- const rawFilterFields=[reviewFilterSelect('collectionId','合集'),reviewFilterSelect('topicId','选题'),reviewFilterSelect('scene','场景'),reviewFilterSelect('device','设备'),reviewFilterSelect('position','机位'),dateRange].join('');
+ const rawFilterFields=[reviewFilterSelect('camera','摄像'),dateRange].join('');
 	 const finalFilterFields=libraryType==='final'?[reviewFilterSelect('collectionId','合集'),reviewFilterSelect('topicId','选题'),reviewFinalScriptSelect(),reviewFilterSelect('platform','平台'),reviewFilterSelect('editor','剪辑师'),dateRange].join(''):'';
 	 const mixedFilterFields=libraryType==='mixed'?[reviewFilterSelect('platform','平台'),reviewFilterSelect('director','编导'),reviewFilterSelect('ip','出镜 IP'),`<input class="field" id="review-amateur" placeholder="出镜素人" value="${safeText(state.reviewFilterDraft.amateur||'')}">`,reviewFilterSelect('editor','剪辑师'),reviewFilterSelect('scriptType','类型'),dateRange].join(''):'';
 	 const filterPrimaryFields=libraryType==='topic'?topicFilterFields:libraryType==='raw'?rawFilterFields:libraryType==='final'?finalFilterFields:libraryType==='mixed'?mixedFilterFields:`${reviewFilterSelect('usage','用途')}${reviewFilterSelect('platform','平台')+reviewFilterSelect('director','编导')+reviewFilterSelect('line','业务线')+reviewFilterSelect('product','产品线')+reviewFilterSelect('ip','出镜 IP')}${collectionDateRange('created','创建日期')}`;
@@ -1419,7 +1419,7 @@ renderReviewCollectionLibrary=function(){
 	 const secondaryMarkup=libraryType==='topic'?`<div class="library-filter-secondary review-filter-secondary-row review-topic-secondary" id="reviewMoreFilters" ${state.reviewFiltersExpanded?'':'hidden'}>${topicSecondaryFields}</div>`:'';
 	 const toggleMarkup=libraryType==='topic'?filterToggle:'';
 	panel.innerHTML=`<div class="library-search-top"><label class="search-box"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><input class="field" id="reviewSearch" placeholder="搜索合集、选题、脚本、标题、原片或成片" value="${safeText(state.reviewQuery)}"></label><div class="page-actions review-page-actions">${['organizer','director'].includes(state.role)?'<button class="btn ghost icon-btn" id="reviewTaskCenter" title="任务中心" aria-label="任务中心">⇅</button>':''}</div></div><div class="library-filter-primary review-filter-primary-row ${libraryType==='all'?'review-all-primary':libraryType==='topic'?'review-topic-primary':libraryType==='raw'?'review-raw-primary':libraryType==='final'?'review-final-primary':libraryType==='mixed'?'review-mixed-primary':''}">${filterPrimaryFields}${toggleMarkup}<div class="review-filter-actions"><button class="btn primary" id="reviewApplyFilters">筛选</button><button class="btn text" id="reviewResetFilters">重置</button></div></div>${secondaryMarkup}`;
-	 const contextualKeys={all:[],topic:['collectionId','direction'],raw:['collectionId','topicId','scene','device','position'],final:['collectionId','topicId','scriptId','platform','editor'],mixed:['platform','director','ip','editor','scriptType']}[libraryType];
+	 const contextualKeys={all:[],topic:['collectionId','direction'],raw:['camera'],final:['collectionId','topicId','scriptId','platform','editor'],mixed:['platform','director','ip','editor','scriptType']}[libraryType];
  const selectKeys=['usage','line','product','ip','platform',...contextualKeys];
 	 selectKeys.forEach(key=>{const select=$(`#review-${key}`);if(!select)return;[...select.options].forEach(option=>option.selected=(draft[key]||[]).includes(option.value));select.onchange=e=>{draft[key]=[...e.target.selectedOptions].map(option=>option.value).filter(Boolean)}});
 	 const amateurInput=$('#review-amateur');if(amateurInput)amateurInput.oninput=e=>{draft.amateur=e.target.value};
@@ -1443,7 +1443,7 @@ function reviewSanitizeFiltersForType(type){
   }else if(type==='topic'){
    filters.platform=[];filters.dateStart='';filters.dateEnd='';filters.scene=[];filters.device=[];filters.position=[];filters.editor=[];filters.editDates=[];filters.opening=[];filters.topicId=[];filters.scriptId=[];filters.createdStart='';filters.createdEnd='';filters.updatedStart='';filters.updatedEnd='';
   }else if(type==='raw'){
-   filters.direction=[];filters.topicUpdatedStart='';filters.topicUpdatedEnd='';filters.line=[];filters.product=[];filters.usage=[];filters.platform=[];filters.director=[];filters.ip=[];filters.editor=[];filters.editDates=[];filters.opening=[];filters.scriptId=[];filters.createdStart='';filters.createdEnd='';filters.updatedStart='';filters.updatedEnd='';
+   filters.collectionId=[];filters.topicId=[];filters.scene=[];filters.device=[];filters.position=[];filters.direction=[];filters.topicUpdatedStart='';filters.topicUpdatedEnd='';filters.line=[];filters.product=[];filters.usage=[];filters.platform=[];filters.director=[];filters.ip=[];filters.editor=[];filters.editDates=[];filters.opening=[];filters.scriptId=[];filters.createdStart='';filters.createdEnd='';filters.updatedStart='';filters.updatedEnd='';
   }else if(type==='final'){
 	   filters.direction=[];filters.topicUpdatedStart='';filters.topicUpdatedEnd='';filters.line=[];filters.product=[];filters.usage=[];filters.director=[];filters.ip=[];filters.scene=[];filters.device=[];filters.position=[];filters.opening=[];filters.editDates=[];filters.createdStart='';filters.createdEnd='';filters.updatedStart='';filters.updatedEnd='';
   }else if(type==='mixed'){
@@ -1462,8 +1462,7 @@ function reviewLibraryRows(type){
   return rows;
  }
  const finalContextPass=topic=>reviewArrayPass(filters.collectionId,topic.collectionId)&&reviewArrayPass(filters.topicId,topic.id);
- const rawContextPass=topic=>reviewArrayPass(filters.collectionId,topic.collectionId)&&reviewArrayPass(filters.topicId,topic.id);
- let topics=reviewCollectionTopics.filter(reviewLibraryTopicSourcePass).filter(topic=>type==='final'?finalContextPass(topic):type==='raw'?rawContextPass(topic):reviewTopicFilterPass(topic,filters));
+ let topics=reviewCollectionTopics.filter(reviewLibraryTopicSourcePass).filter(topic=>type==='final'?finalContextPass(topic):type==='raw'?true:reviewTopicFilterPass(topic,filters));
  if(type==='topic'){
   let rows=topics.map(topic=>{const match=reviewTopicMatch(topic,query,filters,['topic','product','director','ip','amateur','script','title','opening']);return match?{topic,collection:collectionFor(topic),hit:match.hit}:null}).filter(Boolean);
   if(state.reviewSort==='recent')rows.sort((a,b)=>String(b.topic.updated).localeCompare(String(a.topic.updated)));
