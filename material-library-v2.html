@@ -1288,7 +1288,42 @@ if(!state.reviewRawDraftBound){document.addEventListener('click',event=>{if(['re
 if(!state.parseRawRemovalCaptureBound){document.addEventListener('click',event=>{if(event.target.id!=='parseConfirmRawRemove')return;const topicId=state.activeParseTopic,removed=$$('.parse-raw-check').filter(item=>item.checked&&item.isConnected).map(item=>item.value);state.parseRemovedRawIds=state.parseRemovedRawIds||{};state.parseRemovedRawIds[topicId]=[...new Set([...(state.parseRemovedRawIds[topicId]||[]),...removed])]},true);state.parseRawRemovalCaptureBound=true}
 if(!state.reviewScriptSpecialFieldsBound){document.addEventListener('input',event=>{if(!state.reviewFormalEditing||!event.target.matches('[data-review-script-field]'))return;const topic=state.topic,script=topic&&reviewTopicScripts(topic).find(item=>item.id===state.reviewScriptId);if(!script)return;if(event.target.dataset.reviewScriptField==='摄像')script.camera=event.target.value.trim();if(event.target.dataset.reviewScriptField==='视觉锤')script.visualHammer=event.target.value.trim()});state.reviewScriptSpecialFieldsBound=true}
 if(!state.reviewRawMoveBound){document.addEventListener('change',event=>{if(!state.reviewFormalEditing||!event.target.matches('.review-raw-check,[data-review-select-group]'))return;queueMicrotask(()=>{const move=$('#reviewMoveRaw');if(move)move.disabled=!$$('.review-raw-check').some(item=>item.checked)})});state.reviewRawMoveBound=true}
-if(!state.reviewLayeredSaveBound){document.addEventListener('click',event=>{const button=event.target.closest('#reviewSaveFormalEdit');if(!button||!state.reviewFormalEditing)return;event.preventDefault();event.stopImmediatePropagation();const topic=state.topic,collection=reviewCollections.find(item=>item.id===topic?.collectionId),script=topic&&reviewTopicScripts(topic).find(item=>String(item.id)===String(state.reviewScriptId)),name=$('#reviewTopicNameEditor')?.value.trim(),usages=parseMultiValues('usages'),line=$('#reviewTopicLineEditor')?.value;if(!name){$('#reviewTopicNameEditor')?.focus();toast('选题名称不能为空',false);return}if(!usages.length){toast('请至少选择一项用途',false);return}if(!script){toast('当前脚本不存在，请刷新后重试',false);return}const controls=$$('[data-review-script-business]'),business=Object.fromEntries(controls.map(control=>[control.dataset.reviewScriptBusiness,control.value.trim()])),allowed=fieldDictionaries.products[line]||[];if(!business.product||!allowed.includes(business.product)){const product=$('[data-review-script-business="product"]');product?.focus();toast('请选择当前业务线下的有效产品线',false);return}const scriptName=$('#reviewScriptNameEditor')?.value.trim();if(!scriptName){$('#reviewScriptNameEditor')?.focus();toast('脚本名称不能为空',false);return}topic.name=name;topic.usages=usages;topic.line=line;script.fullName=scriptName;script.product=business.product;script.director=business.director;script.ip=business.ip;script.amateur=business.amateur;script.directions=business.direction?[business.direction]:[];script.score=business.score;topic.updated=new Date().toLocaleString('sv-SE',{hour12:false}).slice(0,16);if(collection)collection.updated=topic.updated;topic.version=(topic.version||1)+1;state.reviewFormalEditing=false;state.reviewAtomicSession=null;state.reviewRawDraftChanges=[];toast('当前选题和脚本修改已保存');renderReviewTopicDetail()},true);state.reviewLayeredSaveBound=true}
+if(!state.reviewLayeredSaveBound){
+ document.addEventListener('click',event=>{
+  const button=event.target.closest('#reviewSaveFormalEdit');
+  if(!button||!state.reviewFormalEditing)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const topic=state.topic,collection=reviewCollections.find(item=>item.id===topic?.collectionId),session=state.reviewAtomicSession;
+  const script=topic&&reviewTopicScripts(topic).find(item=>String(item.id)===String(state.reviewScriptId));
+  const name=$('#reviewTopicNameEditor')?.value.trim(),usages=parseMultiValues('usages'),line=$('#reviewTopicLineEditor')?.value;
+  if(!name){$('#reviewTopicNameEditor')?.focus();toast('选题名称不能为空',false);return}
+  if(!usages.length){toast('请至少选择一项用途',false);return}
+  if(!script){toast('当前脚本不存在，请刷新后重试',false);return}
+  if(session&&topic.version!==session.baseVersion){toast('保存失败：数据版本已变更，请保留草稿并刷新后重试',false);return}
+  if(state.reviewAtomicForceFailure){toast('保存失败：本次原子提交未生效，草稿已保留',false);return}
+  const finalError=reviewValidateFinalDraft(),rawError=reviewValidateRawRemovalDraft(topic),relationError=reviewValidateFinalRelationDrafts();
+  if(finalError||rawError||relationError){toast(`保存失败：${finalError||rawError||relationError}，本次修改均未生效`,false);return}
+  const controls=$$('[data-review-script-business]'),business=Object.fromEntries(controls.map(control=>[control.dataset.reviewScriptBusiness,control.value.trim()])),allowed=fieldDictionaries.products[line]||[];
+  if(!business.product||!allowed.includes(business.product)){const product=$('[data-review-script-business="product"]');product?.focus();toast('请选择当前业务线下的有效产品线',false);return}
+  const editor=$('[data-review-script-editor]'),scriptName=$('#reviewScriptNameEditor')?.value.trim(),addedEmpty=$$('.script-content-edit-row.is-added .control',editor).find(input=>!input.value.trim());
+  if(!scriptName){$('#reviewScriptNameEditor')?.focus();toast('脚本名称不能为空',false);return}
+  if(addedEmpty){addedEmpty.focus();toast('新增内容尚未填写，请填写或删除',false);return}
+  const fields=$$('[data-review-script-field]',editor).map(input=>[input.dataset.reviewScriptField,input.value.trim()]);
+  const collect=kind=>$$(`[data-review-script-content="${kind}"]`,editor).map(input=>({value:input.value.trim(),added:Boolean(input.closest('.is-added'))})).filter(item=>item.value);
+  const draft={name:scriptName,fields,titles:collect('title'),openings:collect('opening'),bodies:collect('body')},fieldMap=Object.fromEntries(fields);
+  state.reviewScriptDrafts[String(script.id)]=draft;
+  topic.name=name;topic.usages=usages;topic.line=line;
+  script.fullName=scriptName;script.product=business.product;script.director=business.director;script.ip=business.ip;script.amateur=business.amateur;script.directions=business.direction?[business.direction]:[];script.score=business.score;
+  script.camera=fieldMap['摄像']||'';script.scene=fieldMap['场景']||'';script.device=fieldMap['设备']||'';script.shot=fieldMap['镜号']||'';script.action=fieldMap['动作']||'';script.clothing=fieldMap['服装']||'';script.prop=fieldMap['背景/道具']||'';script.audio=fieldMap['音频']||'';script.bodyIntro=draft.bodies[0]?.value||'';
+  topic.updated=new Date().toLocaleString('sv-SE',{hour12:false}).slice(0,16);if(collection)collection.updated=topic.updated;
+  topic.version=(session?.baseVersion??topic.version??1)+1;
+  state.reviewLastFormalSavePayload={version:session?.baseVersion??topic.version-1,name,usages,line,scriptId:script.id,business,draft,rawRelations:state.reviewRawDraftChanges,rawRemovalDrafts:state.reviewRawRemovalDrafts||[],finalRelations:state.reviewFinalRelationDrafts||[],finalRemovalDrafts:state.reviewFinalRemovalDrafts||[],finalEdits:state.reviewFinalEdits,covers:Object.keys(state.reviewFinalCovers),remarks:state.reviewFinalRemarks};
+  state.reviewFormalEditing=false;state.reviewAtomicSession=null;state.reviewRawDraftChanges=[];
+  const pending=state.reviewAtomicPendingAction;state.reviewAtomicPendingAction=null;
+  toast('当前选题和脚本修改已保存');renderReviewTopicDetail();if(pending)pending();
+ },true);
+ state.reviewLayeredSaveBound=true
+}
 if(!state.reviewLayeredLineBound){document.addEventListener('change',event=>{const line=event.target.closest('#reviewTopicLineEditor');if(!line||!state.reviewFormalEditing)return;event.stopImmediatePropagation();const product=$('[data-review-script-business="product"]'),options=fieldDictionaries.products[line.value]||[],previous=product?.value||'';if(product){product.innerHTML=options.map(value=>`<option ${value===previous?'selected':''}>${safeText(value)}</option>`).join('');product.dataset.invalid=String(!options.includes(previous));if(!options.includes(previous))toast('业务线已变更，请重新选择当前脚本产品线',false)}reviewAtomicMarkDirty()},true);state.reviewLayeredLineBound=true}
 state.reviewTabStates=state.reviewTabStates||{};
 function reviewSaveActiveTabState(){state.reviewTabStates[state.reviewLibraryType]={query:state.reviewQuery,filters:JSON.parse(JSON.stringify(state.reviewFilters)),filterDraft:JSON.parse(JSON.stringify(state.reviewFilterDraft)),page:state.reviewPage,scrollY:window.scrollY}}
