@@ -1509,7 +1509,7 @@ renderReviewCollectionLibrary=function(){
 	 const finalFilterFields=libraryType==='final'?[reviewFilterSelect('collectionId','合集'),reviewFilterSelect('topicId','选题'),reviewFinalScriptSelect(),reviewFilterSelect('platform','平台'),reviewFilterSelect('editor','剪辑师'),reviewFilterSelect('ip','出镜 IP'),reviewFilterSelect('editDirection','剪辑方向'),reviewFilterSelect('videoType','视频类型'),dateRange].join(''):'';
 	 const mixedFilterFields=libraryType==='mixed'?[reviewFilterSelect('platform','平台'),reviewFilterSelect('director','编导'),reviewFilterSelect('editor','剪辑师'),reviewFilterSelect('editDirection','剪辑方向'),reviewFilterSelect('videoType','视频类型'),dateRange].join(''):'';
 	 const filterPrimaryFields=libraryType==='topic'?topicFilterFields:libraryType==='raw'?rawFilterFields:libraryType==='final'?finalFilterFields:libraryType==='mixed'?mixedFilterFields:`${reviewFilterSelect('usage','用途')}${reviewFilterSelect('platform','平台')+reviewFilterSelect('director','编导')+reviewFilterSelect('line','业务线')+reviewFilterSelect('product','产品线')+reviewFilterSelect('ip','出镜 IP')}${collectionDateRange('created','创建日期')}`;
- const filterToggle=`<div class="library-filter-toggle-row"><button class="library-filter-toggle ${state.reviewFiltersExpanded?'open':''}" id="reviewFilterToggle" type="button" aria-expanded="${state.reviewFiltersExpanded}"><span>${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div>`;
+ const filterToggle=`<div class="library-filter-toggle-row"><button class="library-filter-toggle ${state.reviewFiltersExpanded?'open':''}" id="reviewFilterToggle" type="button" aria-expanded="${state.reviewFiltersExpanded}" aria-label="${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}" title="${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div>`;
 	 const secondaryMarkup=libraryType==='topic'?`<div class="library-filter-secondary review-filter-secondary-row review-topic-secondary" id="reviewMoreFilters" ${state.reviewFiltersExpanded?'':'hidden'}>${topicSecondaryFields}</div>`:'';
 	 const toggleMarkup=libraryType==='topic'?filterToggle:'';
 	panel.innerHTML=`<div class="library-search-top"><label class="search-box"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><input class="field" id="reviewSearch" placeholder="搜索合集、选题、脚本、原片、成片或混剪" value="${safeText(state.reviewSearchInput)}"></label><div class="page-actions review-page-actions">${['organizer','director'].includes(state.role)?'<button class="btn ghost icon-btn" id="reviewTaskCenter" title="任务中心" aria-label="任务中心">⇅</button>':''}</div></div><div class="library-filter-primary review-filter-primary-row ${libraryType==='all'?'review-all-primary':libraryType==='topic'?'review-topic-primary':libraryType==='raw'?'review-raw-primary':libraryType==='final'?'review-final-primary':libraryType==='mixed'?'review-mixed-primary':''}">${filterPrimaryFields}${toggleMarkup}<div class="review-filter-actions"><button class="btn primary" id="reviewApplyFilters">筛选</button><button class="btn text" id="reviewResetFilters">重置</button></div></div>${secondaryMarkup}`;
@@ -1523,7 +1523,7 @@ renderReviewCollectionLibrary=function(){
  const applyFilters=()=>{state.reviewFilters=JSON.parse(JSON.stringify(state.reviewFilterDraft));state.reviewPage=1;renderReviewCollectionLibrary()};
  const applySearch=()=>{state.reviewQuery=String(state.reviewSearchInput||'').trim();state.reviewSearchInput=state.reviewQuery;state.reviewPage=1;renderReviewCollectionLibrary()};
  $('#reviewSearch').oninput=e=>{state.reviewSearchInput=e.target.value};$('#reviewSearch').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();applySearch()}};$('#reviewApplyFilters').onclick=applyFilters;
- const reviewFilterToggle=$('#reviewFilterToggle');if(reviewFilterToggle)reviewFilterToggle.onclick=()=>{state.reviewFiltersExpanded=!state.reviewFiltersExpanded;const more=$('#reviewMoreFilters'),button=$('#reviewFilterToggle');more.hidden=!state.reviewFiltersExpanded;button.classList.toggle('open',state.reviewFiltersExpanded);button.setAttribute('aria-expanded',String(state.reviewFiltersExpanded));button.querySelector('span').textContent=state.reviewFiltersExpanded?'收起筛选':'更多筛选'};
+ const reviewFilterToggle=$('#reviewFilterToggle');if(reviewFilterToggle)reviewFilterToggle.onclick=()=>{state.reviewFiltersExpanded=!state.reviewFiltersExpanded;const more=$('#reviewMoreFilters'),button=$('#reviewFilterToggle'),label=state.reviewFiltersExpanded?'收起筛选':'更多筛选';more.hidden=!state.reviewFiltersExpanded;button.classList.toggle('open',state.reviewFiltersExpanded);button.setAttribute('aria-expanded',String(state.reviewFiltersExpanded));button.setAttribute('aria-label',label);button.title=label};
 	 $('#reviewResetFilters').onclick=()=>{state.reviewQuery='';state.reviewSearchInput='';state.reviewFilters=reviewEmptyFilters();state.reviewFilterDraft=reviewEmptyFilters();state.reviewPage=1;renderReviewCollectionLibrary()};
  $('#reviewTaskCenter')&&($('#reviewTaskCenter').onclick=()=>{state.reviewTaskFilter='processing';state.reviewTaskPage=1;state.view='tasks';state.taskTabOpen=true;state.collectionId=null;render()});
 
@@ -1988,8 +1988,11 @@ render();
 
 /* 字段级宽度：同一筛选字段在全部、选题、原片、成片、混剪 Tab 中使用同一规格。 */
 .review-filter-primary-row,.review-filter-secondary-row{
- display:flex;grid-template-columns:none;flex-wrap:wrap;align-items:center;gap:10px;max-width:100%;padding-right:0;padding-bottom:4px;overflow:visible
+ display:flex;grid-template-columns:none;flex-wrap:wrap;align-items:center;gap:10px;max-width:100%;padding-right:136px;padding-bottom:4px;overflow:visible
 }
+.review-filter-primary-row{position:relative;min-height:44px}
+.review-filter-primary-row.review-topic-primary{padding-right:180px}
+.review-filter-secondary-row{padding-right:0}
 .review-filter-primary-row>.filter-select,.review-filter-secondary-row>.filter-select,
 .review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{width:auto;max-width:none}
 .review-filter-primary-row>.filter-size-xs,.review-filter-secondary-row>.filter-size-xs{flex:0 0 88px!important;width:88px!important;min-width:88px!important;max-width:88px!important}
@@ -1997,14 +2000,17 @@ render();
 .review-filter-primary-row>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex:0 0 144px!important;width:144px!important;min-width:144px!important;max-width:144px!important}
 .review-filter-primary-row>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex:0 0 180px!important;width:180px!important;min-width:180px!important;max-width:180px!important}
 .review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{flex:0 0 224px!important;width:224px!important;min-width:224px!important;max-width:224px!important}
-.review-filter-primary-row>.library-filter-toggle-row,.review-filter-secondary-row>.library-filter-toggle-row{flex:0 0 auto;height:44px}
+.review-filter-primary-row>.library-filter-toggle-row{
+ position:absolute;top:0;right:136px;display:flex;width:36px;height:44px;align-items:center;justify-content:center
+}
+.review-filter-primary-row>.library-filter-toggle-row .library-filter-toggle{width:36px;height:36px;padding:0;justify-content:center;border-radius:6px}
 .review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{
- position:static;inset:auto;flex:0 0 126px;height:44px;margin-left:auto;padding:0;background:var(--color-page);z-index:2
+ position:absolute;top:0;right:0;inset-block-end:auto;inset-inline-start:auto;display:flex;flex:0 0 126px;width:126px;height:44px;margin-left:0;padding:0;align-items:center;justify-content:flex-end;background:var(--color-page);z-index:2
 }
 .review-filter-secondary-row>.review-filter-actions{margin-left:0}
 @media(max-width:1250px){
- .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible;padding-right:0;padding-bottom:4px}
- .review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{position:static;margin-left:0}
+ .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible;padding-bottom:4px}
+ .review-filter-primary-row{padding-right:136px}.review-filter-primary-row.review-topic-primary{padding-right:180px}.review-filter-secondary-row{padding-right:0}
 }
 @media(max-width:800px){
  .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible}
