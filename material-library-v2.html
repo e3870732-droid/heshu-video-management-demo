@@ -857,7 +857,7 @@ function enhanceFilterSelects(panel){
  panel.querySelectorAll('.library-filter-primary select.field,.library-filter-secondary select.field').forEach(native=>{
   if(native.dataset.enhanced)return;
   native.dataset.enhanced='1';native.multiple=true;native.classList.add('filter-select-native');
-  const wrap=document.createElement('div');wrap.className='filter-select';
+  const wrap=document.createElement('div');wrap.className='filter-select';if(native.dataset.filterSize)wrap.classList.add(`filter-size-${native.dataset.filterSize}`);
   const trigger=document.createElement('button');trigger.type='button';trigger.className='filter-select-trigger';trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-expanded','false');
   const menu=document.createElement('div');menu.className='filter-select-menu';menu.id='menu-'+native.id;menu.setAttribute('role','menu');trigger.setAttribute('aria-controls',menu.id);
   const clear=document.createElement('button');clear.type='button';clear.className='filter-select-clear';clear.textContent='×';
@@ -1364,7 +1364,7 @@ function reviewTopicFilterPass(topic,filters){
  if(!reviewArrayPass(filters.line,topic.line)||filters.product.length&&!anyScript(meta=>reviewArrayPass(filters.product,meta.product))||!reviewArrayPass(filters.usage,topic.usages)||filters.director.length&&!anyScript(meta=>reviewArrayPass(filters.director,meta.director))||filters.ip.length&&!anyScript(meta=>reviewArrayPass(filters.ip,meta.ip)))return false;
  const hasRawFilter=Boolean(filters.dateStart||filters.dateEnd||filters.scene.length||filters.device.length||filters.position.length);
  if(hasRawFilter&&!reviewRawAssets(topic).some(asset=>reviewRawFilterPass(asset,filters)))return false;
- if((filters.editor.length||filters.editDates?.length||filters.opening?.length)&&!reviewTopicScripts(topic).some((script,index)=>reviewFinalAssets(topic,index).some(asset=>reviewFinalFilterPass(asset,filters,topic,script))))return false;
+ if((filters.editor.length||filters.dateStart||filters.dateEnd||filters.opening?.length)&&!reviewTopicScripts(topic).some((script,index)=>reviewFinalAssets(topic,index).some(asset=>reviewFinalFilterPass(asset,filters,topic,script))))return false;
  return true;
 }
 function reviewTopicMatch(topic,query,filters,allowedTypes=null){
@@ -1374,13 +1374,13 @@ function reviewTopicMatch(topic,query,filters,allowedTypes=null){
  const hasRawFilter=Boolean(filters.dateStart||filters.dateEnd||filters.scene.length||filters.device.length||filters.position.length);
  const valid=candidates.find(hit=>{
   if(hit.type==='raw'&&hasRawFilter&&!reviewRawFilterPass(hit.asset,filters))return false;
-  if((hit.type==='final'||hit.type==='finalNote')&&(filters.editor.length||filters.editDates?.length||filters.opening?.length)&&!reviewFinalFilterPass(hit.asset,filters,topic,reviewTopicScripts(topic).find((script,index)=>reviewFinalAssets(topic,index).some(asset=>asset.id===hit.asset.id))))return false;
+  if((hit.type==='final'||hit.type==='finalNote')&&(filters.editor.length||filters.dateStart||filters.dateEnd||filters.opening?.length)&&!reviewFinalFilterPass(hit.asset,filters,topic,reviewTopicScripts(topic).find((script,index)=>reviewFinalAssets(topic,index).some(asset=>asset.id===hit.asset.id))))return false;
   return true;
  });
 	if(!valid)return null;
 	const validHits=candidates.filter(hit=>{
 	 if(hit.type==='raw'&&hasRawFilter&&!reviewRawFilterPass(hit.asset,filters))return false;
-	 if(hit.type==='final'&&(filters.editor.length||filters.editDates?.length||filters.opening?.length)&&!reviewFinalFilterPass(hit.asset,filters,topic,reviewTopicScripts(topic).find((script,index)=>reviewFinalAssets(topic,index).some(asset=>asset.id===hit.asset.id))))return false;
+	 if(hit.type==='final'&&(filters.editor.length||filters.dateStart||filters.dateEnd||filters.opening?.length)&&!reviewFinalFilterPass(hit.asset,filters,topic,reviewTopicScripts(topic).find((script,index)=>reviewFinalAssets(topic,index).some(asset=>asset.id===hit.asset.id))))return false;
 	 return true;
 	});
 	return {topic,hit:{...valid,matchCount:validHits.filter(hit=>hit.type===valid.type).length}};
@@ -1417,10 +1417,11 @@ function reviewFilterOptions(key){
  const selectedLines=state.reviewFilterDraft?.line||[],productOptions=selectedLines.length?selectedLines.flatMap(line=>fieldDictionaries.products[line]||[]):Object.values(fieldDictionaries.products).flat();
  const map={collectionId:collectionOrder.map(collection=>({id:collection.id,name:collection.name})),topicId:newestTopics.map(topic=>({id:topic.id,name:topic.name})),direction:fieldDictionaries.topicDirections,grade:['S','A','无'],line:fieldDictionaries.businessLines,product:productOptions,usage:['投流','主页'],platform:fieldDictionaries.platforms,director:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewTopicScriptAggregate(topic,'director'))),camera:cameraOptions,ip:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewTopicScriptAggregate(topic,'ip'))),editor:finalEditors,editDirection:fieldDictionaries.editDirections,videoType:fieldDictionaries.videoTypes,scriptType:fieldDictionaries.editDirections,scene:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewRawAssets(topic).map(asset=>asset.scene))),device:['手机','相机'],position:['正机位','侧机位']};return map[key]||[];
 }
-function reviewFilterSelect(key,label){return `<select class="field" id="review-${key}" multiple aria-label="${label}"><option value="">${label}</option>${reviewFilterOptions(key).map(value=>`<option value="${safeText(typeof value==='object'?value.id:value)}">${safeText(typeof value==='object'?value.name:value)}</option>`).join('')}</select>`}
+const reviewFilterSizeByKey={grade:'xs',usage:'s',platform:'s',position:'s',director:'m',camera:'m',editor:'m',line:'m',ip:'m',amateur:'m',videoType:'m',scene:'m',device:'m',collectionId:'l',topicId:'l',scriptId:'l',product:'l',direction:'l',editDirection:'l'};
+function reviewFilterSelect(key,label){const size=reviewFilterSizeByKey[key]||'m';return `<select class="field" data-filter-size="${size}" id="review-${key}" multiple aria-label="${label}"><option value="">${label}</option>${reviewFilterOptions(key).map(value=>`<option value="${safeText(typeof value==='object'?value.id:value)}">${safeText(typeof value==='object'?value.name:value)}</option>`).join('')}</select>`}
 function reviewFinalScriptSelect(){
  const options=reviewCollectionTopics.flatMap(topic=>reviewTopicScripts(topic).map((script,index)=>{const assets=reviewFinalAssets(topic,index),latest=assets.reduce((value,asset)=>String(asset.uploadedAt||asset.date)>value?String(asset.uploadedAt||asset.date):value,String(topic.updated||''));return {key:`${topic.id}::${script.id}`,name:script.fullName||`脚本 ${script.id}`,latest}})).sort((a,b)=>b.latest.localeCompare(a.latest));
- return `<select class="field" id="review-scriptId" multiple aria-label="脚本"><option value="">脚本</option>${options.map(option=>`<option value="${safeText(option.key)}">${safeText(option.name)}</option>`).join('')}</select>`;
+ return `<select class="field" data-filter-size="l" id="review-scriptId" multiple aria-label="脚本"><option value="">脚本</option>${options.map(option=>`<option value="${safeText(option.key)}">${safeText(option.name)}</option>`).join('')}</select>`;
 }
 function reviewActiveFilterTags(){
  const rows=[];if(state.reviewQuery)rows.push({key:'query',value:state.reviewQuery,label:`关键词：${state.reviewQuery}`});
@@ -1437,17 +1438,21 @@ function reviewWireGlobalNavigation(){
 function reviewLibraryNavContext(){return {kind:'library',libraryType:state.reviewLibraryType,sort:state.reviewSort,query:state.reviewQuery,filters:JSON.parse(JSON.stringify(state.reviewFilters)),filterDraft:JSON.parse(JSON.stringify(state.reviewFilterDraft)),filtersExpanded:Boolean(state.reviewFiltersExpanded),page:state.reviewPage,scrollY:window.scrollY}}
 function reviewCollectionNavContext(collectionId){return {kind:'collection',collectionId,scrollY:window.scrollY}}
 function reviewPushNavContext(context){state.reviewNavStack.push(context)}
-let reviewEditDatesPickerApp=null;
-function enhanceReviewEditDatesFilter(panel){
- if(reviewEditDatesPickerApp){reviewEditDatesPickerApp.unmount();reviewEditDatesPickerApp=null}
- const host=panel.querySelector('#review-editDates');if(!host)return;
- const draft=state.reviewFilterDraft;draft.editDates=Array.isArray(draft.editDates)?draft.editDates:[];
- reviewEditDatesPickerApp=Vue.createApp({setup(){
-  const dates=Vue.ref([...draft.editDates]);
-  const dateLabel=state.reviewLibraryType==='mixed'?'剪辑时间':'剪辑日期';
-  return ()=>Vue.h(ElementPlus.ElDatePicker,{modelValue:dates.value,'onUpdate:modelValue':value=>{dates.value=Array.isArray(value)?value:[];draft.editDates=[...dates.value]},type:'dates',placeholder:dateLabel,valueFormat:'YYYY-MM-DD',format:'YYYY-MM-DD',clearable:true,teleported:true,popperClass:'library-date-popper',style:{width:'100%',height:'44px'},ariaLabel:dateLabel})
+let reviewDateRangePickerApp=null;
+function enhanceReviewDateRangeFilter(panel){
+ if(reviewDateRangePickerApp){reviewDateRangePickerApp.unmount();reviewDateRangePickerApp=null}
+ const host=panel.querySelector('#reviewDateRange');if(!host)return;
+ const draft=state.reviewFilterDraft,startKey=host.dataset.startKey,endKey=host.dataset.endKey,dateLabel=host.dataset.label||'日期';
+ reviewDateRangePickerApp=Vue.createApp({setup(){
+  const range=Vue.ref(draft[startKey]&&draft[endKey]?[draft[startKey],draft[endKey]]:null);
+  const shortcutRange=days=>{const end=new Date();end.setHours(0,0,0,0);const start=new Date(end);start.setDate(start.getDate()-days+1);return [start,end]};
+  const shortcuts=[{text:'最近一周',value:()=>shortcutRange(7)},{text:'最近一个月',value:()=>shortcutRange(30)},{text:'最近三个月',value:()=>shortcutRange(90)}];
+  return ()=>Vue.h('div',{class:'review-date-range-control'},[
+   Vue.h('span',{class:'review-date-range-name'},dateLabel),
+   Vue.h(ElementPlus.ElDatePicker,{modelValue:range.value,'onUpdate:modelValue':value=>{range.value=Array.isArray(value)&&value.length===2?value:null;draft[startKey]=range.value?.[0]||'';draft[endKey]=range.value?.[1]||''},type:'daterange',startPlaceholder:'开始日期',endPlaceholder:'结束日期',rangeSeparator:'至',valueFormat:'YYYY-MM-DD',format:'YYYY-MM-DD',shortcuts,clearable:true,unlinkPanels:true,teleported:true,popperClass:'library-date-popper',style:{width:'100%',height:'42px'},ariaLabel:`${dateLabel}范围`})
+  ])
  }});
- reviewEditDatesPickerApp.use(ElementPlus,{locale:ElementPlusLocaleZhCn});reviewEditDatesPickerApp.mount(host);
+ reviewDateRangePickerApp.use(ElementPlus,{locale:ElementPlusLocaleZhCn});reviewDateRangePickerApp.mount(host);
 }
 function reviewRestoreScroll(scrollY){requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:Number(scrollY)||0,behavior:'auto'})))}
 function reviewGoBack(){
@@ -1492,8 +1497,8 @@ renderReviewCollectionLibrary=function(){
  const collectionGrid=$('.review-collection-grid');if(collectionGrid&&currentResults.length)collectionGrid.insertAdjacentHTML('afterend',reviewPaginationMarkup(currentResults.length,state.reviewPage,pageSize));
  const libraryType=state.reviewLibraryType||'all';
 	 const businessDateLabel=libraryType==='raw'?'拍摄日期':libraryType==='final'||libraryType==='mixed'?'剪辑日期':'';
-	 const dateRange=businessDateLabel?`<div class="review-collection-date-range" role="group" aria-label="${businessDateLabel}" title="按${businessDateLabel}筛选"><span class="review-collection-date-label">${businessDateLabel}</span><input class="field" type="date" id="review-dateStart" aria-label="${businessDateLabel}开始日期" value="${safeText(draft.dateStart||'')}"><span class="review-collection-date-separator">—</span><input class="field" type="date" id="review-dateEnd" aria-label="${businessDateLabel}结束日期" value="${safeText(draft.dateEnd||'')}"></div>`:'';
- const collectionDateRange=(key,label)=>`<div class="review-collection-date-range" role="group" aria-label="${label}"><span class="review-collection-date-label">${label}</span><input class="field" type="date" id="review-${key}Start" aria-label="${label}开始日期" placeholder="开始日期" value="${safeText(draft[`${key}Start`]||'')}"><span class="review-collection-date-separator">—</span><input class="field" type="date" id="review-${key}End" aria-label="${label}结束日期" placeholder="结束日期" value="${safeText(draft[`${key}End`]||'')}"></div>`;
+	 const dateRange=businessDateLabel?`<div class="review-date-range-picker filter-size-date" id="reviewDateRange" data-start-key="dateStart" data-end-key="dateEnd" data-label="${businessDateLabel}" role="group" aria-label="${businessDateLabel}范围"></div>`:'';
+ const collectionDateRange=(key,label)=>`<div class="review-date-range-picker filter-size-date" id="reviewDateRange" data-start-key="${key}Start" data-end-key="${key}End" data-label="${label}" role="group" aria-label="${label}范围"></div>`;
 	 const contextual={all:[],topic:[reviewFilterSelect('collectionId','合集'),reviewFilterSelect('direction','选题方向'),collectionDateRange('topicUpdated','更新日期')],raw:[],final:[],mixed:[]}[libraryType];
  const topicFilterFields=[reviewFilterSelect('usage','用途'),reviewFilterSelect('direction','选题方向'),reviewFilterSelect('grade','评级'),reviewFilterSelect('director','编导'),reviewFilterSelect('collectionId','合集'),reviewFilterSelect('line','业务线'),reviewFilterSelect('product','产品线')].join('');
 	 const topicSecondaryFields=[reviewFilterSelect('ip','出镜 IP'),collectionDateRange('topicUpdated','更新日期')].join('');
@@ -1510,7 +1515,8 @@ renderReviewCollectionLibrary=function(){
 	 selectKeys.forEach(key=>{const select=$(`#review-${key}`);if(!select)return;[...select.options].forEach(option=>option.selected=(draft[key]||[]).includes(option.value));select.onchange=e=>{draft[key]=[...e.target.selectedOptions].map(option=>option.value).filter(Boolean);if(key==='line'){const validProducts=(draft.line||[]).length?(draft.line||[]).flatMap(line=>fieldDictionaries.products[line]||[]):Object.values(fieldDictionaries.products).flat();draft.product=(draft.product||[]).filter(product=>validProducts.includes(product));renderReviewCollectionLibrary()}}});
 	 const amateurInput=$('#review-amateur');if(amateurInput)amateurInput.oninput=e=>{draft.amateur=e.target.value};
  ['dateStart','dateEnd',...(libraryType==='all'?['createdStart','createdEnd','updatedStart','updatedEnd']:libraryType==='topic'?['topicUpdatedStart','topicUpdatedEnd']:[])].forEach(key=>{const input=$(`#review-${key}`);if(!input)return;input.oninput=e=>{draft[key]=e.target.value};input.onchange=e=>{draft[key]=e.target.value}});
- state.filterDraft=Object.fromEntries(selectKeys.map(key=>[`review-${key}`,draft[key]]));enhanceFilterSelects(panel);enhanceReviewEditDatesFilter(panel);
+ state.filterDraft=Object.fromEntries(selectKeys.map(key=>[`review-${key}`,draft[key]]));enhanceFilterSelects(panel);enhanceReviewDateRangeFilter(panel);
+	 panel.querySelectorAll('input[type="date"]').forEach(input=>{const syncDateTextColor=()=>input.classList.toggle('has-value',Boolean(input.value));syncDateTextColor();input.addEventListener('input',syncDateTextColor);input.addEventListener('change',syncDateTextColor)});
  const applyFilters=()=>{state.reviewFilters=JSON.parse(JSON.stringify(state.reviewFilterDraft));state.reviewPage=1;renderReviewCollectionLibrary()};
  const applySearch=()=>{state.reviewQuery=String(state.reviewSearchInput||'').trim();state.reviewSearchInput=state.reviewQuery;state.reviewPage=1;renderReviewCollectionLibrary()};
  $('#reviewSearch').oninput=e=>{state.reviewSearchInput=e.target.value};$('#reviewSearch').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();applySearch()}};$('#reviewApplyFilters').onclick=applyFilters;
@@ -1938,11 +1944,31 @@ render();
 .review-filter-primary-row .filter-select .el-select__wrapper,.review-filter-secondary-row .filter-select .el-select__wrapper{box-sizing:border-box;min-height:44px;height:44px;padding:0 14px;border:1px solid transparent;border-radius:6px;background:#fff;box-shadow:none!important}
 .review-filter-primary-row .filter-select .el-select__wrapper:hover,.review-filter-secondary-row .filter-select .el-select__wrapper:hover{border-color:#dcdfe6}
 .review-filter-primary-row .filter-select .el-select__wrapper.is-focused,.review-filter-secondary-row .filter-select .el-select__wrapper.is-focused{border-color:#409eff;box-shadow:0 0 0 2px rgba(64,158,255,.12)!important}
-.review-filter-primary-row .filter-select .el-select__placeholder,.review-filter-secondary-row .filter-select .el-select__placeholder{font-size:14px;line-height:42px;color:#606266}
+.review-library{--review-filter-placeholder:#a6afbc}
+.review-filter-primary-row .filter-select .el-select__placeholder,.review-filter-secondary-row .filter-select .el-select__placeholder{font-size:14px;line-height:42px}
+.review-library .library-search-top .search-box input::placeholder,
+.review-filter-primary-row .filter-select .el-select__placeholder.is-transparent,
+.review-filter-secondary-row .filter-select .el-select__placeholder.is-transparent,
+.review-filter-primary-row .filter-select-trigger.is-placeholder,
+.review-filter-secondary-row .filter-select-trigger.is-placeholder,
+.review-filter-primary-row input::placeholder,
+.review-filter-secondary-row input::placeholder{color:var(--review-filter-placeholder)!important;opacity:1}
+.review-filter-primary-row input[type="date"],.review-filter-secondary-row input[type="date"]{color:var(--review-filter-placeholder)}
+.review-filter-primary-row input[type="date"].has-value,.review-filter-secondary-row input[type="date"].has-value{color:#606266}
 .review-filter-primary-row .filter-select .el-select__suffix,.review-filter-secondary-row .filter-select .el-select__suffix{color:#909399}
 .review-filter-primary-row .review-date-range,.review-filter-secondary-row .review-date-range,
 .review-filter-primary-row .review-collection-date-range,.review-filter-secondary-row .review-collection-date-range,
-.review-filter-primary-row .review-edit-dates-filter,.review-filter-secondary-row .review-edit-dates-filter{height:44px;border:1px solid transparent;border-radius:6px;background:#fff;box-sizing:border-box}
+.review-filter-primary-row .review-edit-dates-filter,.review-filter-secondary-row .review-edit-dates-filter,
+.review-filter-primary-row .review-date-range-picker,.review-filter-secondary-row .review-date-range-picker{height:44px;border:1px solid transparent;border-radius:6px;background:#fff;box-sizing:border-box}
+.review-date-range-control{display:flex;align-items:center;width:100%;height:42px;padding-left:14px;box-sizing:border-box}
+.review-date-range-name{flex:0 0 auto;margin-right:8px;color:#606266;font-size:14px;white-space:nowrap}
+.review-date-range-control .el-date-editor{flex:1;min-width:0;height:42px;border:0;background:transparent;box-shadow:none!important}
+.review-date-range-control .el-date-editor.el-input__wrapper{padding:0 12px 0 4px}
+.review-date-range-control .el-range__icon{color:#909399;order:5;margin-left:6px;margin-right:0}
+.review-date-range-control .el-range-input{min-width:0;color:#606266;font-size:14px}
+.review-date-range-control .el-range-input::placeholder{color:var(--review-filter-placeholder)!important;opacity:1}
+.review-date-range-control .el-range-separator{width:18px;color:#a6afbc}
+.review-date-range-control .el-range__close-icon{margin-left:5px;color:#909399}
 .review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{height:44px;align-items:center;gap:10px}
 .review-filter-primary-row>.review-filter-actions .btn,.review-filter-secondary-row>.review-filter-actions .btn{height:36px;padding:0 14px}
 .review-filter-primary-row>.review-filter-actions .btn.text,.review-filter-secondary-row>.review-filter-actions .btn.text{padding:0 4px}
@@ -1954,6 +1980,31 @@ render();
 .review-library-topic-card .review-topic-info-line{min-height:18px;line-height:18px}
 .review-library-topic-card .count-line{margin-top:12px;padding-top:0}
 .review-library-topic-card .card-foot{margin-top:12px;padding-top:10px}
+
+/* 字段级宽度：同一筛选字段在全部、选题、原片、成片、混剪 Tab 中使用同一规格。 */
+.review-filter-primary-row,.review-filter-secondary-row{
+ display:flex;grid-template-columns:none;flex-wrap:wrap;align-items:center;gap:10px;max-width:100%;padding-right:0;padding-bottom:4px;overflow:visible
+}
+.review-filter-primary-row>.filter-select,.review-filter-secondary-row>.filter-select,
+.review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{width:auto;max-width:none}
+.review-filter-primary-row>.filter-size-xs,.review-filter-secondary-row>.filter-size-xs{flex:0 0 88px!important;width:88px!important;min-width:88px!important;max-width:88px!important}
+.review-filter-primary-row>.filter-size-s,.review-filter-secondary-row>.filter-size-s{flex:0 0 120px!important;width:120px!important;min-width:120px!important;max-width:120px!important}
+.review-filter-primary-row>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex:0 0 144px!important;width:144px!important;min-width:144px!important;max-width:144px!important}
+.review-filter-primary-row>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex:0 0 180px!important;width:180px!important;min-width:180px!important;max-width:180px!important}
+.review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{flex:0 0 360px!important;width:360px!important;min-width:360px!important;max-width:360px!important}
+.review-filter-primary-row>.library-filter-toggle-row,.review-filter-secondary-row>.library-filter-toggle-row{flex:0 0 auto;height:44px}
+.review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{
+ position:static;inset:auto;flex:0 0 126px;height:44px;margin-left:auto;padding:0;background:var(--color-page);z-index:2
+}
+.review-filter-secondary-row>.review-filter-actions{margin-left:0}
+@media(max-width:1250px){
+ .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible;padding-right:0;padding-bottom:4px}
+ .review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{position:static;margin-left:0}
+}
+@media(max-width:800px){
+ .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible}
+ .review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{grid-column:auto}
+}
 .parse-topic-public-read .parse-topic-name{margin-bottom:16px}.topic-public-meta-line,.review-topic-public-summary{display:flex!important;align-items:center;justify-content:flex-start!important;flex-wrap:wrap;gap:14px 32px}.topic-public-meta-item{display:flex!important;align-items:center;gap:9px;min-width:0}.topic-public-meta-item>b{color:var(--color-text-3);font-size:12px;font-weight:500;white-space:nowrap}.topic-public-meta-item>span:not(.topic-public-usage-tags){color:var(--color-text);font-size:13px}.topic-public-usage-tags{display:flex;align-items:center;gap:6px}.review-topic-public-summary{margin-top:14px}.parse-script-shoot{margin:2px 0 14px}
 .parsed-script.is-editing>.parsed-script-body{padding:0}.parse-script-edit-name-row{grid-template-columns:minmax(0,1fr) 34px 54px;margin-bottom:14px}.parse-script-edit-name-row .script-content-edit-row{display:block;min-width:0}.parse-script-edit-name-row .script-name-inline{width:100%;height:36px}.parse-script-edit-name-row .parse-script-structure-add{align-self:center}.parse-script-edit-name-row .script-field-add-button{width:34px;height:34px}.parsed-script.is-editing .script-business-grid{margin-bottom:14px}.parsed-script.is-editing .script-optional-fields{margin-bottom:14px}.parsed-script.is-editing .script-edit-grid{margin-bottom:18px}.parsed-script.is-editing .script-content-block{padding-top:14px;border-top:1px solid var(--color-border)}
 .parsed-script.is-editing .script-edit-grid,.review-script-editor .script-edit-grid{display:grid;grid-template-columns:1.15fr 1.15fr .8fr .8fr .8fr 1.15fr 1.15fr 1.15fr;gap:10px 12px;align-items:center}.parsed-script.is-editing .script-edit-field,.review-script-editor .script-edit-field{width:100%;min-width:0}.parsed-script.is-editing .script-field-add,.review-script-editor .review-content-add{justify-self:start}.parsed-script.is-editing .script-edit-grid .control,.review-script-editor .script-edit-grid .control{width:100%;min-width:0}
