@@ -2007,6 +2007,9 @@ render();
 .review-filter-primary-row>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex:0 0 144px!important;width:144px!important;min-width:144px!important;max-width:144px!important}
 .review-filter-primary-row>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex:0 0 180px!important;width:180px!important;min-width:180px!important;max-width:180px!important}
 .review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{flex:0 0 224px!important;width:224px!important;min-width:224px!important;max-width:224px!important}
+/* 成片页优先把剪辑日期留在首行：前面字段维持原尺寸，日期触发器仅使用右侧实际剩余空间。 */
+.review-final-primary{gap:8px}
+.review-final-primary>.filter-size-date{flex:1 1 160px!important;width:auto!important;min-width:160px!important;max-width:224px!important}
 /* 全部 Tab 要在首行同时容纳常用条件、创建日期和固定操作区。 */
 .review-all-primary>.filter-size-s{flex-basis:104px!important;width:104px!important;min-width:104px!important;max-width:104px!important}
 .review-all-primary>.filter-size-m{flex-basis:120px!important;width:120px!important;min-width:120px!important;max-width:120px!important}
@@ -2028,6 +2031,13 @@ render();
  .review-filter-primary-row:not(.review-all-primary)>.filter-size-s,.review-filter-secondary-row>.filter-size-s{flex-basis:104px!important;width:104px!important;min-width:104px!important;max-width:104px!important}
  .review-filter-primary-row:not(.review-all-primary)>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex-basis:128px!important;width:128px!important;min-width:128px!important;max-width:128px!important}
  .review-filter-primary-row:not(.review-all-primary)>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex-basis:160px!important;width:160px!important;min-width:160px!important;max-width:160px!important}
+}
+/* 常用工作窗口下，成片页紧凑分配单个字段宽度，确保剪辑日期和操作区留在首行。 */
+@media(max-width:1800px) and (min-width:1251px){
+ .review-final-primary>.filter-size-l{flex:0 0 150px!important;width:150px!important;min-width:150px!important;max-width:150px!important}
+ .review-final-primary>.filter-size-s{flex:0 0 96px!important;width:96px!important;min-width:96px!important;max-width:96px!important}
+ .review-final-primary>.filter-size-m{flex:0 0 112px!important;width:112px!important;min-width:112px!important;max-width:112px!important}
+ .review-final-primary>.filter-size-date{flex:1 1 160px!important;width:auto!important;min-width:160px!important;max-width:224px!important}
 }
 @media(max-width:1250px){
  .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible;padding-bottom:4px}
