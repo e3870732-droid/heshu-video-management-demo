@@ -2,8 +2,8 @@
  const css=document.createElement('style');
  css.textContent=`
  .mt-tags{display:flex;align-items:center;gap:4px;min-width:0;width:100%;overflow:hidden;flex-wrap:nowrap}
- .mt-chip{display:inline-flex;gap:4px;align-items:center;max-width:100%;padding:2px 6px;background:#f2f3f5;border-radius:4px;color:#4e5969;font-size:13px;white-space:nowrap;box-sizing:border-box}
- .mt-chip span{overflow:hidden;text-overflow:ellipsis}.mt-chip button{border:0;background:none;padding:0;color:#86909c;cursor:pointer}
+ .mt-chip{display:inline-flex;gap:4px;align-items:center;min-width:0;max-width:100%;padding:2px 6px;background:#f2f3f5;border-radius:4px;color:#4e5969;font-size:13px;white-space:nowrap;box-sizing:border-box}
+ .mt-chip span{min-width:0;overflow:hidden;text-overflow:ellipsis}.mt-chip button{flex:none;border:0;background:none;padding:0;color:#86909c;cursor:pointer}
  .mt-dots{border:0;background:#f2f3f5;border-radius:4px;padding:2px 6px;color:#4e5969;flex-shrink:0;cursor:pointer}
  .mt-measure{position:absolute;visibility:hidden;pointer-events:none;white-space:nowrap;display:flex;gap:4px}
  .mt-full{display:flex;gap:6px;flex-wrap:wrap;max-width:380px;max-height:240px;overflow:auto}
@@ -19,7 +19,7 @@
    const vals=Vue.computed(()=>props.modelValue||[]);
    const opts=Vue.computed(()=>(props.options||[]).map(o=>typeof o==='string'?{value:o,label:o}:o));
    const label=v=>opts.value.find(o=>o.value===v)?.label||v;
-   const recalc=()=>{if(!host.value||!measure.value)return;let used=0,n=0;const widths=[...measure.value.children].map(x=>x.getBoundingClientRect().width+4),total=widths.reduce((a,b)=>a+b,0),available=host.value.clientWidth-(total>host.value.clientWidth?32:0);for(const w of widths){if(used+w>available)break;used+=w;n++}count.value=n};
+   const recalc=()=>{if(!host.value||!measure.value)return;const widths=[...measure.value.children].map(x=>x.getBoundingClientRect().width+4);if(!widths.length){count.value=0;return}const total=widths.reduce((a,b)=>a+b,0),available=host.value.clientWidth-(total>host.value.clientWidth?32:0);let used=widths[0],n=1;for(const w of widths.slice(1)){if(used+w>available)break;used+=w;n++}count.value=n};
    let observer;
    Vue.onMounted(()=>{observer=new ResizeObserver(recalc);if(host.value)observer.observe(host.value);recalc()});
    Vue.watch(host,el=>{observer?.disconnect();if(el)observer?.observe(el);Vue.nextTick(recalc)});

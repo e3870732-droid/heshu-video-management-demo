@@ -121,7 +121,9 @@
     .library-filter-secondary[hidden]{display:none}
     .filter-select-native{display:none!important}
     .filter-select{position:relative;min-width:0}
-    .filter-select-trigger{width:100%;height:44px;border:0;border-radius:6px;background:#fff;color:#1d2129;padding:0 34px 0 14px;text-align:left;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .filter-select-trigger{width:100%;height:44px;border:0;border-radius:6px;background:#fff;color:#1d2129;padding:0 34px 0 14px;text-align:left;position:relative;display:flex;align-items:center;min-width:0}
+    .filter-select-trigger-text{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .filter-select.has-value .filter-select-trigger{padding-right:38px}
     .filter-select-trigger.is-placeholder{color:rgba(29,33,41,.5);opacity:1}
     .filter-select-trigger:after{content:'⌄';position:absolute;right:12px;top:10px;color:#909399;font-size:15px}
     .filter-select.has-value .filter-select-trigger:after{display:none}
@@ -859,6 +861,7 @@ function enhanceFilterSelects(panel){
   native.dataset.enhanced='1';native.multiple=true;native.classList.add('filter-select-native');
   const wrap=document.createElement('div');wrap.className='filter-select';if(native.dataset.filterSize)wrap.classList.add(`filter-size-${native.dataset.filterSize}`);
   const trigger=document.createElement('button');trigger.type='button';trigger.className='filter-select-trigger';trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-expanded','false');
+  const triggerText=document.createElement('span');triggerText.className='filter-select-trigger-text';trigger.append(triggerText);
   const menu=document.createElement('div');menu.className='filter-select-menu';menu.id='menu-'+native.id;menu.setAttribute('role','menu');trigger.setAttribute('aria-controls',menu.id);
   const clear=document.createElement('button');clear.type='button';clear.className='filter-select-clear';clear.textContent='×';
   const options=[...native.options].filter(o=>o.value!=='');
@@ -869,7 +872,7 @@ function enhanceFilterSelects(panel){
   const values=()=>options.filter(o=>o.selected).map(o=>o.value);
   const sync=()=>{
    const selected=values(),all=options.length>0&&selected.length===options.length;
-   trigger.textContent=all?placeholder+'：全部':selected.length>1?selected[0]+' +'+(selected.length-1):selected[0]||placeholder;
+   triggerText.textContent=all?placeholder+'：全部':selected.length>1?selected[0]+' +'+(selected.length-1):selected[0]||placeholder;
    trigger.title=selected.length?placeholder+'：'+selected.join('、'):placeholder;
    trigger.classList.toggle('is-placeholder',!selected.length);wrap.classList.toggle('has-value',!!selected.length);clear.hidden=!selected.length;
    menu.querySelectorAll('.filter-select-option').forEach(b=>{
@@ -944,7 +947,7 @@ $$('.nav button[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view
 window.renderDrafts=window.renderDrafts||function(){};
 </script>
 <script src="./topic-flow-core.js"></script>
-<script src="./multi-tags.js"></script>
+<script src="./multi-tags.js?v=20261011-1"></script>
 <script src="./iteration-editor.js"></script>
 <script src="./topic-workflow.js"></script>
 <style>
@@ -2003,7 +2006,7 @@ render();
 /* 全部 Tab 要在首行同时容纳 6 个常用条件、创建日期和固定操作区。 */
 .review-all-primary>.filter-size-s{flex-basis:104px!important;width:104px!important;min-width:104px!important;max-width:104px!important}
 .review-all-primary>.filter-size-m{flex-basis:120px!important;width:120px!important;min-width:120px!important;max-width:120px!important}
-.review-all-primary>.filter-size-l{flex-basis:160px!important;width:160px!important;min-width:160px!important;max-width:160px!important}
+.review-all-primary>.filter-size-l{flex:1 1 200px!important;width:auto!important;min-width:200px!important;max-width:none!important}
 .review-all-primary>.filter-size-date{flex-basis:200px!important;width:200px!important;min-width:200px!important;max-width:200px!important}
 .review-filter-primary-row>.library-filter-toggle-row{
  position:absolute;top:0;right:136px;display:flex;width:36px;height:44px;align-items:center;justify-content:center
