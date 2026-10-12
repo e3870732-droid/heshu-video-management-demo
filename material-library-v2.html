@@ -1,10 +1,19 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="ui-booting">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>素材库｜合数教育</title>
   <link rel="icon" href="data:," />
+  <style id="ui-boot-guard">
+    html{background:#f3f6fc}
+    html.ui-booting body{visibility:hidden}
+    html.ui-booting *,html.ui-booting *::before,html.ui-booting *::after{transition:none!important;animation:none!important}
+  </style>
+  <script>
+    /* 防止单文件原型在后置样式与增强控件初始化期间显示中间态；异常时自动兜底恢复。 */
+    window.__uiBootFallback=setTimeout(function(){document.documentElement.classList.remove('ui-booting')},1800);
+  </script>
   <link rel="stylesheet" href="./vendor/date-picker/element-plus.css">
   <script src="./vendor/date-picker/vue.js"></script>
   <script src="./vendor/date-picker/element-plus.js"></script>
@@ -419,7 +428,17 @@ function renderTasks(){
  $$('[data-task-log]').forEach(button=>button.onclick=()=>{state.operationRecord=records[Number(button.dataset.taskLog)];state.view='processed';render()});
 }
 /* V1.13 任务中心：统一九列任务快照、快捷筛选、提交式搜索和处理权。 */
+const reviewTaskRuntimeStorageKey='heshu-review-task-runtime-v1';
+function restoreReviewTaskRuntime(){
+ if(state.reviewTaskRuntimeRestored)return;state.reviewTaskRuntimeRestored=true;
+ const baselineOwners={'TASK-0008':{status:'complete',operator:'王晓雨',completedAt:'2026-09-23 18:10'}},baselineEvents={'TASK-0008':[{topic:'任务处理',operator:'王晓雨',time:'2026-09-23 18:10',changes:[{object:'任务状态',field:'任务完成',before:'处理中',after:'已完成｜全部候选已确定'}]}]};
+ try{const saved=JSON.parse(localStorage.getItem(reviewTaskRuntimeStorageKey)||'{}');state.reviewTaskOwners={...baselineOwners,...(saved.owners&&typeof saved.owners==='object'?saved.owners:state.reviewTaskOwners||{})};state.reviewOperationEvents={...baselineEvents,...(saved.events&&typeof saved.events==='object'?saved.events:state.reviewOperationEvents||{})};saveReviewTaskRuntime()}catch(error){state.reviewTaskOwners={...baselineOwners,...(state.reviewTaskOwners||{})};state.reviewOperationEvents={...baselineEvents,...(state.reviewOperationEvents||{})}}
+}
+function saveReviewTaskRuntime(){
+ try{localStorage.setItem(reviewTaskRuntimeStorageKey,JSON.stringify({owners:state.reviewTaskOwners||{},events:state.reviewOperationEvents||{}}))}catch(error){}
+}
 function reviewTaskRecords(){
+ restoreReviewTaskRuntime();
  const seeds=[
   {url:'https://heshuedu.feishu.cn/wiki/NwoHwiHwvil5HbkYu5TcM7Bunjd',kind:'normal',result:'3 个选题 · 5 份脚本 · 76 个原片 · 2 条成片',handling:'3 个选题待确定',pendingIssues:2,status:'start',operator:'',completedAt:''},
   {url:'https://heshuedu.feishu.cn/sheets/Rs8mY2k',kind:'mixed',result:'4 条混剪',handling:'1 条混剪待确定',pendingIssues:1,status:'processing',operator:'陶雨桐',completedAt:''},
@@ -430,7 +449,7 @@ function reviewTaskRecords(){
 }
 function reviewOperationTime(){return new Date().toLocaleString('sv-SE',{hour12:false,timeZone:'Asia/Shanghai'}).slice(0,16)}
 function addReviewOperation(taskId,topic,changes,operator=state.role==='organizer'?'王晓雨':'陶雨桐'){
- if(!taskId||!changes?.length)return;state.reviewOperationEvents=state.reviewOperationEvents||{};state.reviewOperationEvents[taskId]=state.reviewOperationEvents[taskId]||[];state.reviewOperationEvents[taskId].push({topic,operator,time:reviewOperationTime(),changes});
+ if(!taskId||!changes?.length)return;state.reviewOperationEvents=state.reviewOperationEvents||{};state.reviewOperationEvents[taskId]=state.reviewOperationEvents[taskId]||[];state.reviewOperationEvents[taskId].push({topic,operator,time:reviewOperationTime(),changes});saveReviewTaskRuntime();
 }
 const renderTasksLegacy=renderTasks;
 renderTasks=function(){
@@ -721,9 +740,10 @@ function parsePendingIssues(){
 function completeActiveReviewTask(trigger='候选确定'){
  if(!state.reviewActiveTaskId)return;
  state.reviewTaskOwners=state.reviewTaskOwners||{};
- const current=state.reviewTaskOwners[state.reviewActiveTaskId];if(current?.status==='complete')return;const operator=state.role==='organizer'?'王晓雨':'陶雨桐',completedAt=reviewOperationTime();state.reviewTaskOwners[state.reviewActiveTaskId]={status:'complete',operator,completedAt};state.reviewTaskReadOnly=true;addReviewOperation(state.reviewActiveTaskId,`任务 ${state.reviewActiveTaskId}`,[{object:'任务状态',field:'任务完成',before:'处理中',after:`已完成｜${trigger}`}],operator);
+ const current=state.reviewTaskOwners[state.reviewActiveTaskId];if(current?.status==='complete')return false;const operator=state.role==='organizer'?'王晓雨':'陶雨桐',completedAt=reviewOperationTime(),completedTaskId=state.reviewActiveTaskId;state.reviewTaskOwners[completedTaskId]={status:'complete',operator,completedAt};state.reviewTaskReadOnly=true;state.parseTaskCompleted=true;addReviewOperation(completedTaskId,`任务 ${completedTaskId}`,[{object:'任务状态',field:'任务完成',before:'处理中',after:`已完成｜${trigger}`}],operator);setTimeout(()=>{if(state.reviewTaskOwners?.[completedTaskId]?.status==='complete')flowCompletedTaskToCenter()},0);return true;
 }
 function returnToReviewTaskCenter(){const saved=state.reviewTaskReturn||{};state.reviewTaskFilter=saved.filter||state.reviewTaskFilter||'all';state.reviewTaskQuery=saved.query??state.reviewTaskQuery??'';state.reviewTaskQueryDraft=saved.draft??state.reviewTaskQuery;state.reviewTaskPage=saved.page||1;state.view='tasks';state.topic=null;state.scriptId=null;render();requestAnimationFrame(()=>window.scrollTo(0,Number(saved.scrollY)||0))}
+function flowCompletedTaskToCenter(){const saved=state.reviewTaskReturn||{};state.reviewTaskReturn={...saved,filter:'complete',page:1,scrollY:0};returnToReviewTaskCenter()}
 function openFeishuParseResult(reviewOnly=true,focusIssues=false){
  const topicIds=state.parseTopicIds;if(!topicIds.includes(state.activeParseTopic))state.activeParseTopic=topicIds[0];const taskComplete=Boolean(state.reviewTaskReadOnly)||(topicIds.length>0&&topicIds.every(id=>state.confirmedTopics.includes(id)));state.parseTaskCompleted=taskComplete;const totals=topicIds.reduce((sum,id)=>{const count=parseTopicCounts(id);Object.keys(sum).forEach(key=>sum[key]+=count[key]);return sum},{scripts:0,titles:0,raw:0,finished:0});
  const pendingIssues=taskComplete?[]:parsePendingIssues();state.pendingCount=pendingIssues.length;
@@ -2054,5 +2074,14 @@ render();
 @media(max-width:1500px){.script-business-grid{grid-template-columns:repeat(3,minmax(150px,1fr))}}
 @media(max-width:900px){.review-topic-public-grid,.parse-topic-public-grid,.script-business-grid,.script-business-read{grid-template-columns:1fr!important}.review-topic-public-grid .full,.review-topic-public-grid .review-topic-usage,.review-topic-public-grid .review-topic-line,.parse-topic-public-grid .parse-topic-name,.parse-topic-public-grid .parse-topic-usage,.parse-topic-public-grid .parse-topic-line{grid-column:auto!important}}
 </style>
+<script>
+  /* 两帧后统一呈现最终样式，避免原生筛选框、Element 日期控件和弹窗覆盖样式闪烁。 */
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      clearTimeout(window.__uiBootFallback);
+      document.documentElement.classList.remove('ui-booting');
+    });
+  });
+</script>
 </body>
 </html>
