@@ -1512,7 +1512,7 @@ renderReviewCollectionLibrary=function(){
 	 const finalFilterFields=libraryType==='final'?[reviewFilterSelect('collectionId','合集'),reviewFilterSelect('topicId','选题'),reviewFinalScriptSelect(),reviewFilterSelect('platform','平台'),reviewFilterSelect('editor','剪辑师'),reviewFilterSelect('ip','出镜 IP'),reviewFilterSelect('editDirection','剪辑方向'),reviewFilterSelect('videoType','视频类型'),dateRange].join(''):'';
 	 const mixedFilterFields=libraryType==='mixed'?[reviewFilterSelect('platform','平台'),reviewFilterSelect('director','编导'),reviewFilterSelect('editor','剪辑师'),reviewFilterSelect('editDirection','剪辑方向'),reviewFilterSelect('videoType','视频类型'),dateRange].join(''):'';
 	 const filterPrimaryFields=libraryType==='topic'?topicFilterFields:libraryType==='raw'?rawFilterFields:libraryType==='final'?finalFilterFields:libraryType==='mixed'?mixedFilterFields:`${reviewFilterSelect('usage','用途')}${reviewFilterSelect('platform','平台')+reviewFilterSelect('director','编导')+reviewFilterSelect('line','业务线')+reviewFilterSelect('product','产品线')+reviewFilterSelect('ip','出镜 IP')}${collectionDateRange('created','创建日期')}`;
- const filterToggle=`<div class="library-filter-toggle-row"><button class="library-filter-toggle ${state.reviewFiltersExpanded?'open':''}" id="reviewFilterToggle" type="button" aria-expanded="${state.reviewFiltersExpanded}" aria-label="${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}" title="${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div>`;
+ const filterToggle=`<div class="library-filter-toggle-row"><button class="library-filter-toggle ${state.reviewFiltersExpanded?'open':''}" id="reviewFilterToggle" type="button" aria-expanded="${state.reviewFiltersExpanded}" aria-label="${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}" title="${state.reviewFiltersExpanded?'收起筛选':'更多筛选'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></button></div>`;
 	 const secondaryMarkup=libraryType==='topic'?`<div class="library-filter-secondary review-filter-secondary-row review-topic-secondary" id="reviewMoreFilters" ${state.reviewFiltersExpanded?'':'hidden'}>${topicSecondaryFields}</div>`:'';
 	 const toggleMarkup=libraryType==='topic'?filterToggle:'';
 	panel.innerHTML=`<div class="library-search-top"><label class="search-box"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></span><input class="field" id="reviewSearch" placeholder="搜索合集、选题、脚本、原片、成片或混剪" value="${safeText(state.reviewSearchInput)}"></label><div class="page-actions review-page-actions">${['organizer','director'].includes(state.role)?'<button class="btn ghost icon-btn" id="reviewTaskCenter" title="任务中心" aria-label="任务中心">⇅</button>':''}</div></div><div class="library-filter-primary review-filter-primary-row ${libraryType==='all'?'review-all-primary':libraryType==='topic'?'review-topic-primary':libraryType==='raw'?'review-raw-primary':libraryType==='final'?'review-final-primary':libraryType==='mixed'?'review-mixed-primary':''}">${filterPrimaryFields}${toggleMarkup}<div class="review-filter-actions"><button class="btn primary" id="reviewApplyFilters">筛选</button><button class="btn text" id="reviewResetFilters">重置</button></div></div>${secondaryMarkup}`;
@@ -1994,7 +1994,7 @@ render();
  display:flex;grid-template-columns:none;flex-wrap:wrap;align-items:center;gap:10px;max-width:100%;padding-right:136px;padding-bottom:4px;overflow:visible
 }
 .review-filter-primary-row{position:relative;min-height:44px}
-.review-filter-primary-row.review-topic-primary{padding-right:180px}
+.review-filter-primary-row.review-topic-primary{padding-right:190px}
 .review-filter-secondary-row{padding-right:0}
 .review-filter-primary-row>.filter-select,.review-filter-secondary-row>.filter-select,
 .review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{width:auto;max-width:none}
@@ -2008,17 +2008,28 @@ render();
 .review-all-primary>.filter-size-m{flex-basis:120px!important;width:120px!important;min-width:120px!important;max-width:120px!important}
 .review-all-primary>.filter-size-l{flex:1 1 200px!important;width:auto!important;min-width:200px!important;max-width:none!important}
 .review-all-primary>.filter-size-date{flex-basis:200px!important;width:200px!important;min-width:200px!important;max-width:200px!important}
+.review-topic-primary>.filter-size-l{flex:1 1 180px!important;width:auto!important;min-width:180px!important;max-width:none!important}
 .review-filter-primary-row>.library-filter-toggle-row{
- position:absolute;top:0;right:136px;display:flex;width:36px;height:44px;align-items:center;justify-content:center
+ position:absolute;top:0;right:136px;display:flex;width:44px;height:44px;align-items:center;justify-content:center
 }
-.review-filter-primary-row>.library-filter-toggle-row .library-filter-toggle{width:36px;height:36px;padding:0;justify-content:center;border-radius:6px}
+.review-filter-primary-row>.library-filter-toggle-row .library-filter-toggle{box-sizing:border-box;width:44px;height:44px;padding:0;justify-content:center;border:1px solid transparent;border-radius:6px;background:#fff;color:#606266}
+.review-filter-primary-row>.library-filter-toggle-row .library-filter-toggle:hover{border-color:#dcdfe6;color:#1677ff}
+.review-filter-primary-row>.library-filter-toggle-row .library-filter-toggle:focus-visible{border-color:#409eff;box-shadow:0 0 0 2px rgba(64,158,255,.12);outline:0}
 .review-filter-primary-row>.review-filter-actions,.review-filter-secondary-row>.review-filter-actions{
  position:absolute;top:0;right:0;inset-block-end:auto;inset-inline-start:auto;display:flex;flex:0 0 126px;width:126px;height:44px;margin-left:0;padding:0;align-items:center;justify-content:flex-end;background:var(--color-page);z-index:2
 }
 .review-filter-secondary-row>.review-filter-actions{margin-left:0}
+/* 中等窗口统一收紧其余四个 Tab，保持字段规格关系，同时避免单个筛选项孤立换行。 */
+@media(max-width:1500px) and (min-width:1251px){
+ .review-filter-primary-row:not(.review-all-primary)>.filter-size-xs,.review-filter-secondary-row>.filter-size-xs{flex-basis:80px!important;width:80px!important;min-width:80px!important;max-width:80px!important}
+ .review-filter-primary-row:not(.review-all-primary)>.filter-size-s,.review-filter-secondary-row>.filter-size-s{flex-basis:104px!important;width:104px!important;min-width:104px!important;max-width:104px!important}
+ .review-filter-primary-row:not(.review-all-primary)>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex-basis:128px!important;width:128px!important;min-width:128px!important;max-width:128px!important}
+ .review-filter-primary-row:not(.review-all-primary)>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex-basis:160px!important;width:160px!important;min-width:160px!important;max-width:160px!important}
+ .review-filter-primary-row.review-topic-primary>.filter-size-l{flex:1 1 160px!important;width:auto!important;min-width:160px!important;max-width:none!important}
+}
 @media(max-width:1250px){
  .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible;padding-bottom:4px}
- .review-filter-primary-row{padding-right:136px}.review-filter-primary-row.review-topic-primary{padding-right:180px}.review-filter-secondary-row{padding-right:0}
+ .review-filter-primary-row{padding-right:136px}.review-filter-primary-row.review-topic-primary{padding-right:190px}.review-filter-secondary-row{padding-right:0}
 }
 @media(max-width:800px){
  .review-filter-primary-row,.review-filter-secondary-row{display:flex;grid-template-columns:none;flex-wrap:wrap;overflow:visible}
