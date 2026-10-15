@@ -9,7 +9,7 @@
  .mt-full{display:flex;gap:6px;flex-wrap:wrap;max-width:380px;max-height:240px;overflow:auto}
  .mt-control{width:100%;min-width:0}.mt-control .el-select__wrapper{height:40px;min-height:40px;flex-wrap:nowrap}
  .library-filter-primary .mt-control .el-select__wrapper,.library-filter-secondary .mt-control .el-select__wrapper{height:44px;min-height:44px;border-radius:6px;box-shadow:none;background:#fff}
- .mt-control .el-select__selection{flex-wrap:nowrap;min-width:0}.mt-control .el-select__input-wrapper{position:absolute;width:1px;opacity:0}
+ .mt-control .el-select__selection{flex:1 1 auto;width:100%;flex-wrap:nowrap;min-width:0}.mt-control .el-select__input-wrapper{position:absolute;width:1px;opacity:0}
  .mt-control.mt-creatable .el-select__input-wrapper{position:relative;width:72px;min-width:40px;opacity:1;flex-shrink:0}
  `;document.head.append(css);
  window.MaterialMulti={
@@ -19,7 +19,7 @@
    const vals=Vue.computed(()=>props.modelValue||[]);
    const opts=Vue.computed(()=>(props.options||[]).map(o=>typeof o==='string'?{value:o,label:o}:o));
    const label=v=>opts.value.find(o=>o.value===v)?.label||v;
-   const recalc=()=>{if(!host.value||!measure.value)return;const widths=[...measure.value.children].map(x=>x.getBoundingClientRect().width+4);if(!widths.length){count.value=0;return}const total=widths.reduce((a,b)=>a+b,0),available=host.value.clientWidth-(total>host.value.clientWidth?32:0);let used=widths[0],n=1;for(const w of widths.slice(1)){if(used+w>available)break;used+=w;n++}count.value=n};
+   const recalc=()=>{if(!host.value||!measure.value)return;const widths=[...measure.value.children].map(x=>x.getBoundingClientRect().width+4);if(!widths.length){count.value=0;return}const available=host.value.clientWidth,minChipWidth=124,dotsWidth=32;let used=0,n=0;for(let i=0;i<widths.length;i++){const compactWidth=Math.min(widths[i],minChipWidth),reserve=i<widths.length-1?dotsWidth:0;if(used+compactWidth+reserve>available)break;used+=compactWidth;n++}count.value=Math.max(1,n)};
    let observer;
    Vue.onMounted(()=>{observer=new ResizeObserver(recalc);if(host.value)observer.observe(host.value);recalc()});
    Vue.watch(host,el=>{observer?.disconnect();if(el)observer?.observe(el);Vue.nextTick(recalc)});

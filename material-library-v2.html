@@ -999,7 +999,7 @@ $$('.nav button[data-view]').forEach(b=>b.onclick=()=>{state.view=b.dataset.view
 window.renderDrafts=window.renderDrafts||function(){};
 </script>
 <script src="./topic-flow-core.js"></script>
-<script src="./multi-tags.js?v=20261011-1"></script>
+<script src="./multi-tags.js?v=20261014-1"></script>
 <script src="./iteration-editor.js"></script>
 <script src="./topic-workflow.js"></script>
 <style>
@@ -1473,7 +1473,7 @@ function reviewFilterOptions(key){
  const topicOptions=newestTopics.map(topic=>({id:topic.id,name:topic.name}));if(key==='topicId'&&state.reviewLibraryType==='mixed')topicOptions.unshift({id:'__none__',name:'-'});
  const map={collectionId:collectionOrder.map(collection=>({id:collection.id,name:collection.name})),topicId:topicOptions,direction:fieldDictionaries.topicDirections,grade:['S','A',{id:'无',name:'-'}],line:fieldDictionaries.businessLines,product:productOptions,usage:['投流','主页'],platform:fieldDictionaries.platforms,director:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewTopicScriptAggregate(topic,'director'))),camera:cameraOptions,ip:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewTopicScriptAggregate(topic,'ip'))),editor:finalEditors,editDirection:fieldDictionaries.editDirections,videoType:fieldDictionaries.videoTypes,scriptType:fieldDictionaries.editDirections,scene:reviewUnique(reviewCollectionTopics.flatMap(topic=>reviewRawAssets(topic).map(asset=>asset.scene))),device:['手机','相机'],position:['正机位','侧机位']};return map[key]||[];
 }
-const reviewFilterSizeByKey={grade:'xs',usage:'s',platform:'s',position:'s',director:'s',camera:'s',editor:'s',line:'m',ip:'m',amateur:'m',videoType:'m',scene:'m',device:'m',collectionId:'l',topicId:'l',scriptId:'xl',product:'xl',direction:'l',editDirection:'m'};
+const reviewFilterSizeByKey={grade:'xs',usage:'s',platform:'s',position:'s',director:'s',camera:'s',editor:'s',line:'m',ip:'m',amateur:'m',videoType:'m',scene:'m',device:'m',collectionId:'l',topicId:'topic',scriptId:'xl',product:'xl',direction:'l',editDirection:'m'};
 function reviewFilterSelect(key,label){const size=reviewFilterSizeByKey[key]||'m';return `<select class="field" data-filter-size="${size}" id="review-${key}" multiple aria-label="${label}"><option value="">${label}</option>${reviewFilterOptions(key).map(value=>`<option value="${safeText(typeof value==='object'?value.id:value)}">${safeText(typeof value==='object'?value.name:value)}</option>`).join('')}</select>`}
 function reviewFinalScriptSelect(){
  const options=reviewCollectionTopics.flatMap(topic=>reviewTopicScripts(topic).map((script,index)=>{const assets=reviewFinalAssets(topic,index),latest=assets.reduce((value,asset)=>String(asset.uploadedAt||asset.date)>value?String(asset.uploadedAt||asset.date):value,String(topic.updated||''));return {key:`${topic.id}::${script.id}`,name:script.fullName||`脚本 ${script.id}`,latest}})).sort((a,b)=>b.latest.localeCompare(a.latest));
@@ -2067,6 +2067,7 @@ render();
 .review-filter-primary-row>.filter-size-s,.review-filter-secondary-row>.filter-size-s{flex:0 0 120px!important;width:120px!important;min-width:120px!important;max-width:120px!important}
 .review-filter-primary-row>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex:0 0 144px!important;width:144px!important;min-width:144px!important;max-width:144px!important}
 .review-filter-primary-row>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex:0 0 180px!important;width:180px!important;min-width:180px!important;max-width:180px!important}
+.review-filter-primary-row>.filter-size-topic,.review-filter-secondary-row>.filter-size-topic{flex:0 0 240px!important;width:240px!important;min-width:240px!important;max-width:240px!important}
 .review-filter-primary-row>.filter-size-xl,.review-filter-secondary-row>.filter-size-xl{flex:0 0 360px!important;width:360px!important;min-width:360px!important;max-width:360px!important}
 .review-filter-primary-row>.filter-size-date,.review-filter-secondary-row>.filter-size-date{flex:0 0 224px!important;width:224px!important;min-width:224px!important;max-width:224px!important}
 /* 成片页优先把剪辑日期留在首行：前面字段维持原尺寸，日期触发器仅使用右侧实际剩余空间。 */
@@ -2093,6 +2094,7 @@ render();
  .review-filter-primary-row:not(.review-all-primary)>.filter-size-s,.review-filter-secondary-row>.filter-size-s{flex-basis:104px!important;width:104px!important;min-width:104px!important;max-width:104px!important}
  .review-filter-primary-row:not(.review-all-primary)>.filter-size-m,.review-filter-secondary-row>.filter-size-m{flex-basis:128px!important;width:128px!important;min-width:128px!important;max-width:128px!important}
  .review-filter-primary-row:not(.review-all-primary)>.filter-size-l,.review-filter-secondary-row>.filter-size-l{flex-basis:160px!important;width:160px!important;min-width:160px!important;max-width:160px!important}
+ .review-filter-primary-row>.filter-size-topic,.review-filter-secondary-row>.filter-size-topic{flex-basis:216px!important;width:216px!important;min-width:216px!important;max-width:216px!important}
  .review-filter-primary-row>.filter-size-xl,.review-filter-secondary-row>.filter-size-xl{flex-basis:320px!important;width:320px!important;min-width:320px!important;max-width:320px!important}
 }
 /* 常用工作窗口下，成片页紧凑分配单个字段宽度，确保剪辑日期和操作区留在首行。 */
@@ -2117,7 +2119,7 @@ render();
  .review-filter-primary-row.has-more-filters{padding-right:0;padding-bottom:54px}
  .review-filter-primary-row.has-more-filters>.library-filter-toggle-row{top:auto;right:96px;bottom:4px}
  .review-filter-primary-row.has-more-filters>.review-filter-actions{top:auto;right:0;bottom:4px}
- .review-filter-primary-row>.filter-size-xl,.review-filter-secondary-row>.filter-size-xl{flex:1 1 100%!important;width:100%!important;min-width:0!important;max-width:none!important}
+ .review-filter-primary-row>.filter-size-topic,.review-filter-secondary-row>.filter-size-topic,.review-filter-primary-row>.filter-size-xl,.review-filter-secondary-row>.filter-size-xl{flex:1 1 100%!important;width:100%!important;min-width:0!important;max-width:none!important}
 }
 .parse-topic-public-read .parse-topic-name{margin-bottom:16px}.topic-public-meta-line,.review-topic-public-summary{display:flex!important;align-items:center;justify-content:flex-start!important;flex-wrap:wrap;gap:14px 32px}.topic-public-meta-item{display:flex!important;align-items:center;gap:9px;min-width:0}.topic-public-meta-item>b{color:var(--color-text-3);font-size:12px;font-weight:500;white-space:nowrap}.topic-public-meta-item>span:not(.topic-public-usage-tags){color:var(--color-text);font-size:13px}.topic-public-usage-tags{display:flex;align-items:center;gap:6px}.review-topic-public-summary{margin-top:14px}.parse-script-shoot{margin:2px 0 14px}
 .parsed-script.is-editing>.parsed-script-body{padding:0}.parse-script-edit-name-row{grid-template-columns:minmax(0,1fr) 34px 54px;margin-bottom:14px}.parse-script-edit-name-row .script-content-edit-row{display:block;min-width:0}.parse-script-edit-name-row .script-name-inline{width:100%;height:36px}.parse-script-edit-name-row .parse-script-structure-add{align-self:center}.parse-script-edit-name-row .script-field-add-button{width:34px;height:34px}.parsed-script.is-editing .script-business-grid{margin-bottom:14px}.parsed-script.is-editing .script-optional-fields{margin-bottom:14px}.parsed-script.is-editing .script-edit-grid{margin-bottom:18px}.parsed-script.is-editing .script-content-block{padding-top:14px;border-top:1px solid var(--color-border)}
