@@ -1695,7 +1695,7 @@ function reviewLibraryMixedCard({asset}){const topic=reviewCollectionTopics.find
 const renderReviewCollectionLibraryWithContentTabs=renderReviewCollectionLibrary;
 renderReviewCollectionLibrary=function(){
  renderReviewCollectionLibraryWithContentTabs();
- const type=state.reviewLibraryType,tabs=[['all','全部'],['topic','选题'],['raw','原片'],['final','成片'],['mixed','混剪']],resultbar=$('.review-resultbar');if(!resultbar)return;
+ const type=state.reviewLibraryType,tabs=[['all','合集'],['topic','选题'],['raw','原片'],['final','成片'],['mixed','混剪']],resultbar=$('.review-resultbar');if(!resultbar)return;
  let total=reviewCollectionResults().length,unit='个合集',rows=[];
  if(type!=='all'){rows=reviewLibraryRows(type);total=rows.length;unit=type==='topic'?'个选题':type==='raw'?'个原片':type==='mixed'?'条混剪':'条成片'}
  resultbar.firstElementChild.outerHTML=`<div class="review-result-main"><div class="review-content-tabs" role="tablist" aria-label="素材类型">${tabs.map(([id,label])=>`<button class="review-content-tab ${type===id?'on':''}" type="button" role="tab" aria-selected="${type===id}" data-review-library-type="${id}">${label}</button>`).join('')}</div><span class="review-result-count">共找到 <strong>${total}</strong> ${unit}</span></div>`;
