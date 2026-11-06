@@ -45,7 +45,8 @@
     .crumb{color:var(--color-text-3)}.crumb strong{color:var(--color-text);font-weight:600}.top-actions{display:flex;align-items:center;gap:10px}.role{display:flex;align-items:center;gap:7px;color:var(--color-text-2);font-size:13px}.role select{height:32px;border:1px solid var(--color-border-2);border-radius:var(--r-md);padding:0 28px 0 9px;background:#fff}
     .avatar{width:30px;height:30px;border-radius:50%;background:#dbeafe;color:var(--color-primary);display:grid;place-items:center;font-weight:700}
     .workspace-tabs{height:38px;position:sticky;top:var(--top-h);z-index:7;background:#fff;border-bottom:1px solid var(--color-border);display:flex;align-items:flex-end;gap:4px;padding:0 20px}.workspace-tab{height:31px;padding:0 10px;border:1px solid transparent;border-bottom:0;border-radius:5px 5px 0 0;background:transparent;color:var(--color-text-2);display:inline-flex;align-items:center;gap:8px;font-size:12px}.workspace-tab:hover{background:#f7f9fc;color:var(--color-primary)}.workspace-tab.on{background:#eef5ff;border-color:#b7d2ff;color:var(--color-primary)}.workspace-tab-home{padding-left:5px}.workspace-tab-close{width:16px;height:16px;padding:0;border:0;border-radius:3px;background:transparent;color:#8a94a6;display:grid;place-items:center;line-height:1}.workspace-tab-close:hover{background:#dceaff;color:var(--color-primary)}
-    .subpage-tabs{display:none;min-height:46px;padding:8px 20px;background:#fff;border-bottom:1px solid var(--color-border);align-items:center;gap:4px}.subpage-tabs.open{display:flex}.subpage-tab{height:30px;padding:0 12px;border:0;border-radius:5px;background:transparent;color:var(--color-text-2);display:inline-flex;align-items:center;gap:8px;font-size:12px}.subpage-tab:hover{color:var(--color-primary);background:#f5f7fa}.subpage-tab.on{color:var(--color-primary);background:transparent;font-weight:600}.subpage-tab .workspace-tab-close:hover{background:#edf2f8}
+    .subpage-tabs{display:none;min-height:46px;padding:8px 20px;background:#fff;border-bottom:1px solid var(--color-border);align-items:center;gap:4px;position:relative}.subpage-tabs.open{display:flex}.subpage-tab{height:30px;padding:0 12px;border:0;border-radius:5px;background:transparent;color:var(--color-text-2);display:inline-flex;align-items:center;gap:8px;font-size:12px}.subpage-tab:hover{color:var(--color-primary);background:#f5f7fa}.subpage-tab.on{color:var(--color-primary);background:transparent;font-weight:600}.subpage-tab .workspace-tab-close:hover{background:#edf2f8}.subpage-tab-strip{display:flex;align-items:center;gap:4px;min-width:0;flex:1;overflow-x:auto;scrollbar-width:thin}.subpage-detail-tab{max-width:220px;min-width:180px;flex:0 0 auto}.subpage-detail-tab .subpage-tab-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;text-align:left}.subpage-detail-tab .workspace-tab-close{flex:0 0 16px}.subpage-tab-menu-trigger{flex:0 0 auto;border:1px solid var(--color-border);background:#fff;border-radius:5px;height:30px;padding:0 8px;color:var(--color-text-2);cursor:pointer}.subpage-tab-menu{position:absolute;right:20px;top:42px;z-index:10;max-height:320px;overflow:auto;width:280px;padding:6px;background:#fff;border:1px solid var(--color-border);border-radius:8px;box-shadow:0 8px 24px #1b2a4a26}.subpage-tab-menu[hidden]{display:none}.subpage-tab-menu button{display:block;width:100%;padding:8px 10px;border:0;border-radius:4px;background:none;text-align:left;color:var(--color-text-2);white-space:normal;word-break:break-word;cursor:pointer}.subpage-tab-menu button:hover,.subpage-tab-menu button.on{background:#eef5ff;color:var(--color-primary)}
+    .subpage-detail-tab{width:150px;min-width:150px;max-width:150px}.subpage-detail-tab .subpage-tab-type{flex:0 0 auto;font-size:13px;color:#74829a}.subpage-detail-tab.on .subpage-tab-type{color:var(--color-primary)}
     .page{padding:16px;max-width:1720px;margin:auto}.page-head{display:flex;align-items:center;justify-content:flex-end;gap:18px;margin-bottom:14px}.page-head h1,.page-head p{display:none}.page-actions{display:flex;align-items:center;gap:8px}.icon-btn{width:34px;padding:0;position:relative}.icon-btn .badge{position:absolute;right:-5px;top:-6px;min-width:17px;height:17px;border-radius:9px;background:var(--color-primary);color:#fff;font-size:10px;display:grid;place-items:center;border:2px solid #fff}
     .subnav{display:flex;align-items:center;gap:4px;margin:-4px 0 16px;border-bottom:1px solid var(--color-border)}.subnav button{height:40px;padding:0 14px;border:0;background:transparent;color:var(--color-text-2);border-bottom:2px solid transparent}.subnav button:hover{color:var(--color-primary)}.subnav button.on{color:var(--color-primary);border-bottom-color:var(--color-primary);font-weight:600}
     .btn{height:32px;border-radius:var(--r-md);padding:0 14px;border:1px solid transparent;background:#fff;color:var(--color-text);display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
@@ -345,7 +346,7 @@ function renderWorkspaceTabs(){
  $('#closeLibraryTab')&&($('#closeLibraryTab').onclick=e=>{e.stopPropagation();guardCurrentWorkspaceLeave(closeMaterialWorkspace)});
  $('#homeWorkspaceTab').onclick=()=>toast('原型暂不展开首页内容');
 }
-function closeMaterialWorkspace(){state.libraryTabOpen=false;state.taskTabOpen=false;state.resultTabOpen=false;state.resultFocusIssues=false;state.view='home';state.topic=null;state.scriptId=null;$('#crumb').innerHTML='<strong>首页</strong>';renderWorkspaceTabs();renderSubpageTabs();$('#view').innerHTML='<div class="panel empty">首页</div>'}
+function closeMaterialWorkspace(){state.libraryTabOpen=false;state.taskTabOpen=false;state.resultTabOpen=false;state.resultFocusIssues=false;state.reviewOpenPages=[];state.reviewHomePage={key:'home',type:'home',scrollY:0};state.reviewCurrentPage='home';state.view='home';state.topic=null;state.collectionId=null;state.scriptId=null;$('#crumb').innerHTML='<strong>首页</strong>';renderWorkspaceTabs();renderSubpageTabs();$('#view').innerHTML='<div class="panel empty">首页</div>'}
 function renderSubpageTabs(){
  const tabs=$('#subpageTabs');if(!tabs)return;
  const hasOpenSubpage=state.taskTabOpen||state.resultTabOpen;
@@ -2018,6 +2019,111 @@ renderReviewTopicDetail=function(){
  $$('[data-review-raw-preview]').forEach(button=>button.onclick=()=>openMediaPreview(button.dataset.reviewRawPreview,button.dataset.reviewRawMeta,{kind:'raw',download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewRawPreview}”下载任务`)}));
  $$('[data-review-final-preview]').forEach(button=>button.onclick=()=>openMediaPreview(button.dataset.reviewFinalPreview,button.dataset.reviewFinalMeta,{kind:'final',download:true,onDownload:()=>toast(`已创建“${button.dataset.reviewFinalPreview}”下载任务`)}));
 };
+/* 合集、选题按对象保留页面标签；返回只切换页面，关闭只由 × 执行。 */
+state.reviewOpenPages=state.reviewOpenPages||[];
+state.reviewCurrentPage=state.reviewCurrentPage||'home';
+state.reviewHomePage=state.reviewHomePage||{key:'home',type:'home',scrollY:0};
+function reviewPageKey(type,id){return `${type}:${id}`}
+function reviewShortTabName(name){const chars=Array.from(String(name||''));return chars.length>5?`${chars.slice(0,5).join('')}…`:chars.join('')}
+function reviewCurrentKey(){
+ if(state.view!=='library')return '';
+ if(state.topic)return reviewPageKey('topic',state.topic.id);
+ if(state.collectionId)return reviewPageKey('collection',state.collectionId);
+ return 'home';
+}
+function reviewCaptureOpenPage(){
+ const key=reviewCurrentKey(),page=key==='home'?state.reviewHomePage:state.reviewOpenPages.find(item=>item.key===key);
+ if(!page)return;
+ if(key==='home'){page.scrollY=window.scrollY;return}
+ const view=$('#view');
+ page.content=document.createDocumentFragment();
+ while(view.firstChild)page.content.appendChild(view.firstChild);
+ page.scrollY=window.scrollY;
+ if(page.type==='topic')page.session={formalEditing:state.reviewFormalEditing,atomicSession:state.reviewAtomicSession,scriptId:state.reviewScriptId,scriptDrafts:reviewAtomicClone(state.reviewScriptDrafts||{}),rawChanges:reviewAtomicClone(state.reviewRawDraftChanges||[]),rawRelationDrafts:reviewAtomicClone(state.reviewRawRelationDrafts||[]),rawRemovalDrafts:reviewAtomicClone(state.reviewRawRemovalDrafts||[]),finalRelationDrafts:reviewAtomicClone(state.reviewFinalRelationDrafts||[]),finalRemovalDrafts:reviewAtomicClone(state.reviewFinalRemovalDrafts||[]),rawSelected:[...(state.reviewRawSelected||[])]};
+}
+function reviewActivatePage(key,{capture=true}={}){
+ if(reviewCurrentKey()===key)return;
+ if(capture&&reviewCurrentKey()!==key)reviewCaptureOpenPage();
+ const page=key==='home'?state.reviewHomePage:state.reviewOpenPages.find(item=>item.key===key);
+ state.view='library';state.topic=null;state.collectionId=null;state.scriptId=null;
+ state.reviewFormalEditing=false;state.reviewAtomicSession=null;state.reviewRawSelected=[];
+ if(page?.type==='collection')state.collectionId=page.id;
+ if(page?.type==='topic'){
+  state.topic=reviewCollectionTopics.find(item=>String(item.id)===String(page.id))||null;
+  state.collectionId=state.topic?.collectionId||null;
+  const session=page.session;
+  state.reviewFormalEditing=Boolean(session?.formalEditing);
+  state.reviewAtomicSession=session?.atomicSession||null;
+  state.reviewScriptId=session?.scriptId||1;
+  state.reviewScriptDrafts=reviewAtomicClone(session?.scriptDrafts||{});
+  state.reviewRawDraftChanges=reviewAtomicClone(session?.rawChanges||[]);
+  state.reviewRawRelationDrafts=reviewAtomicClone(session?.rawRelationDrafts||[]);
+  state.reviewRawRemovalDrafts=reviewAtomicClone(session?.rawRemovalDrafts||[]);
+  state.reviewFinalRelationDrafts=reviewAtomicClone(session?.finalRelationDrafts||[]);
+  state.reviewFinalRemovalDrafts=reviewAtomicClone(session?.finalRemovalDrafts||[]);
+  state.reviewRawSelected=[...(session?.rawSelected||[])];
+ }
+ state.reviewCurrentPage=key;
+ state.reviewNavStack=page?.returnKey?.startsWith('collection:')?[reviewCollectionNavContext(page.returnKey.slice('collection:'.length))]:[reviewLibraryNavContext()];
+ render();
+ if(page?.content){const view=$('#view');view.replaceChildren(page.content);page.content=null;reviewRestoreScroll(page.scrollY||0)}
+ else reviewRestoreScroll(page?.scrollY||0);
+ renderSubpageTabs();
+}
+function reviewOpenPage(type,id,sourceKey=reviewCurrentKey(),scriptId=1){
+ const key=reviewPageKey(type,id);
+ let page=state.reviewOpenPages.find(item=>item.key===key);
+ if(!page){page={key,type,id,returnKey:sourceKey||'home',scrollY:0};state.reviewOpenPages.push(page)}
+ else if(sourceKey&&sourceKey!==key)page.returnKey=sourceKey;
+ if(page.type==='topic'&&!page.session)page.session={scriptId};
+ reviewActivatePage(key);
+}
+function reviewClosePage(key){
+ const page=state.reviewOpenPages.find(item=>item.key===key);if(!page)return;
+ if(reviewCurrentKey()!==key){reviewActivatePage(key);return reviewClosePage(key)}
+ const finish=()=>{const target=page.returnKey&&state.reviewOpenPages.some(item=>item.key===page.returnKey)?page.returnKey:'home';state.reviewOpenPages=state.reviewOpenPages.filter(item=>item.key!==key);state.reviewCurrentPage='';reviewActivatePage(target,{capture:false})};
+ if(page.type==='topic'&&reviewAtomicDirty())openUnsavedDiscardConfirm(()=>{reviewAtomicDiscard(state.topic);finish()});
+ else finish();
+}
+function reviewReturnPage(){
+ const page=state.reviewOpenPages.find(item=>item.key===reviewCurrentKey());
+ const target=page?.returnKey&&state.reviewOpenPages.some(item=>item.key===page.returnKey)?page.returnKey:'home';
+ reviewActivatePage(target);
+}
+const reviewOriginalSubpageTabs=renderSubpageTabs;
+renderSubpageTabs=function(){
+ if(!state.libraryTabOpen){reviewOriginalSubpageTabs();return}
+ const tabs=$('#subpageTabs'),active=reviewCurrentKey(),pages=state.reviewOpenPages;
+ tabs.classList.add('open');
+ const detail=page=>{const object=page.type==='collection'?reviewCollections.find(item=>String(item.id)===String(page.id)):reviewCollectionTopics.find(item=>String(item.id)===String(page.id)),name=object?.name||page.id,label=`${page.type==='collection'?'合集':'选题'} · ${name}`,icon=page.type==='collection'?'▦':'▤';return `<button type="button" class="subpage-tab subpage-detail-tab ${active===page.key?'on':''}" data-open-page="${safeText(page.key)}" title="${safeText(label)}" aria-label="打开${safeText(label)}"><span class="subpage-tab-type" aria-hidden="true">${icon}</span><span class="subpage-tab-label">${safeText(reviewShortTabName(name))}</span><span class="workspace-tab-close" role="button" tabindex="0" data-close-page="${safeText(page.key)}" aria-label="关闭${safeText(label)}">×</span></button>`};
+ tabs.innerHTML=`<div class="subpage-tab-strip"><button class="subpage-tab ${active==='home'?'on':''}" id="materialHomeTab">主页</button>${state.taskTabOpen?`<button class="subpage-tab ${['tasks','processed'].includes(state.view)?'on':''}" id="taskWorkspaceTab">任务中心 <span class="workspace-tab-close" id="closeTaskTab">×</span></button>`:''}${state.resultTabOpen?`<button class="subpage-tab ${state.view==='parseResult'?'on':''}" id="resultWorkspaceTab">解析结果 <span class="workspace-tab-close" id="closeResultTab">×</span></button>`:''}${pages.map(detail).join('')}</div><button type="button" class="subpage-tab-menu-trigger" id="openPageMenu" aria-label="查看全部已打开标签" title="全部已打开标签">▾</button><div class="subpage-tab-menu" id="openPageMenuList" hidden><button data-open-page="home" class="${active==='home'?'on':''}">主页</button>${state.taskTabOpen?'<button data-open-special-page="tasks">任务中心</button>':''}${state.resultTabOpen?'<button data-open-special-page="parseResult">解析结果</button>':''}${pages.map(page=>{const object=page.type==='collection'?reviewCollections.find(item=>String(item.id)===String(page.id)):reviewCollectionTopics.find(item=>String(item.id)===String(page.id));return `<button data-open-page="${safeText(page.key)}" class="${active===page.key?'on':''}">${page.type==='collection'?'合集':'选题'} · ${safeText(object?.name||page.id)}</button>`}).join('')}</div>`;
+ $('#materialHomeTab').onclick=()=>reviewActivatePage('home');
+ $$('[data-open-page]').forEach(button=>button.onclick=()=>reviewActivatePage(button.dataset.openPage));
+ $$('[data-close-page]').forEach(button=>{button.onclick=event=>{event.stopPropagation();reviewClosePage(button.dataset.closePage)};button.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();reviewClosePage(button.dataset.closePage)}}});
+ $('#openPageMenu').onclick=()=>{$('#openPageMenuList').hidden=!$('#openPageMenuList').hidden};
+ $('#taskWorkspaceTab')&&($('#taskWorkspaceTab').onclick=()=>{if(active&&active!=='home')reviewCaptureOpenPage();state.view='tasks';state.topic=null;state.collectionId=null;render()});
+ $('#resultWorkspaceTab')&&($('#resultWorkspaceTab').onclick=()=>{if(active&&active!=='home')reviewCaptureOpenPage();state.view='parseResult';state.topic=null;state.collectionId=null;render()});
+ $$('[data-open-special-page]').forEach(button=>button.onclick=()=>{if(active&&active!=='home')reviewCaptureOpenPage();state.view=button.dataset.openSpecialPage;state.topic=null;state.collectionId=null;render()});
+ $('#closeTaskTab')&&($('#closeTaskTab').onclick=event=>{event.stopPropagation();state.taskTabOpen=false;if(['tasks','processed'].includes(state.view))reviewActivatePage('home');else renderSubpageTabs()});
+ $('#closeResultTab')&&($('#closeResultTab').onclick=event=>{event.stopPropagation();guardParseLeave(()=>{state.resultTabOpen=false;if(state.view==='parseResult')reviewActivatePage('home');else renderSubpageTabs()})});
+ const strip=tabs.querySelector('.subpage-tab-strip'),current=strip.querySelector('.subpage-detail-tab.on');
+ if(current)requestAnimationFrame(()=>{const box=current.getBoundingClientRect(),edge=strip.getBoundingClientRect();if(box.right>edge.right)strip.scrollLeft+=box.right-edge.right;else if(box.left<edge.left)strip.scrollLeft-=edge.left-box.left});
+};
+function reviewWirePageNavigation(){
+ $$('[data-review-back]').forEach(button=>button.onclick=()=>reviewReturnPage());
+ $$('[data-review-home]').forEach(button=>button.onclick=()=>reviewActivatePage('home'));
+ $$('[data-review-collection-back]').forEach(button=>button.onclick=()=>{const key=reviewPageKey('collection',state.collectionId);if(state.reviewOpenPages.some(page=>page.key===key))reviewActivatePage(key);else reviewActivatePage('home')});
+ const library=$('#libraryWorkspaceTab'),side=$('.nav button[data-view="library"]');
+ if(library)library.onclick=()=>reviewActivatePage('home');
+ if(side)side.onclick=()=>reviewActivatePage('home');
+}
+const reviewTabLibraryRender=renderReviewCollectionLibrary;
+renderReviewCollectionLibrary=function(){reviewTabLibraryRender();$$('[data-review-collection]').forEach(button=>button.onclick=()=>reviewOpenPage('collection',button.dataset.reviewCollection,'home'));$$('[data-review-library-topic]').forEach(button=>button.onclick=()=>reviewOpenPage('topic',button.dataset.reviewLibraryTopic,'home',Number(button.dataset.reviewLibraryScript)||1));reviewWirePageNavigation()};
+const reviewTabCollectionRender=renderReviewCollectionDetail;
+renderReviewCollectionDetail=function(){reviewTabCollectionRender();$$('[data-review-topic]').forEach(button=>button.onclick=()=>reviewOpenPage('topic',button.dataset.reviewTopic,reviewPageKey('collection',state.collectionId)));reviewWirePageNavigation()};
+const reviewTabTopicRender=renderReviewTopicDetail;
+renderReviewTopicDetail=function(){reviewTabTopicRender();reviewWirePageNavigation();renderSubpageTabs()};
+reviewEnterTopic=function(topicId,scriptId=1){reviewOpenPage('topic',topicId,'home',scriptId)};
 render=renderReviewRouter;
 window.addEventListener('beforeunload',event=>{if(!parseHasUnsavedChanges())return;event.preventDefault();event.returnValue='' });
 render();
