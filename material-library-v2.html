@@ -1873,7 +1873,18 @@ const addDraftChange=(type,detail,linked=[])=>{if(linked.length){const scriptRaw
  $$('[data-review-final-editing-remark]').forEach(input=>input.oninput=()=>{const id=input.dataset.reviewFinalEditingRemark,current=state.reviewFinalRemarks[id]||{};state.reviewFinalRemarks[id]={...current,editingRemark:input.value.trim()}});
  $$('[data-review-final-opening]').forEach(select=>select.onchange=()=>{const id=select.dataset.reviewFinalOpening,current=state.reviewFinalRemarks[id]||{};state.reviewFinalRemarks[id]={...current,opening:select.value}});
  $$('[data-review-back]').forEach(button=>button.onclick=()=>reviewAtomicGuard(topic,reviewGoBack));$$('[data-review-home]').forEach(button=>button.onclick=()=>reviewAtomicGuard(topic,()=>{state.collectionId=null;state.topic=null;state.reviewFormalEditing=false;state.reviewNavStack=[];render()}));$$('[data-review-collection-back]').forEach(button=>button.onclick=()=>reviewAtomicGuard(topic,()=>{state.topic=null;state.reviewFormalEditing=false;state.reviewNavStack=[];render()}));
- $$('[data-review-script]').forEach(button=>button.onclick=()=>{const target=Number(button.dataset.reviewScript);reviewAtomicGuard(topic,()=>{state.reviewScriptId=target;renderReviewTopicDetail()})});
+ $$('[data-review-script]').forEach(button=>button.onclick=()=>{
+  const target=Number(button.dataset.reviewScript);
+  if(target===state.reviewScriptId)return;
+  reviewAtomicGuard(topic,()=>{
+   reviewAtomicDiscard(topic);
+   state.reviewFormalEditing=false;
+   state.reviewAtomicSession=null;
+   state.reviewRawSelected=[];
+   state.reviewScriptId=target;
+   renderReviewTopicDetail();
+  });
+ });
  $('#reviewTopicOperations')&&($('#reviewTopicOperations').onclick=()=>reviewOpenTopicOperations(topic));$('#reviewFormalEdit')&&($('#reviewFormalEdit').onclick=()=>{state.reviewFormalEditing=true;reviewAtomicStart(topic);renderReviewTopicDetail()});$('#reviewCancelFormalEdit')&&($('#reviewCancelFormalEdit').onclick=()=>reviewAtomicGuard(topic,()=>{state.reviewFormalEditing=false;state.reviewAtomicSession=null;renderReviewTopicDetail()}));
  const roleSelect=$('#role');if(roleSelect&&!state.reviewAtomicRoleBase)state.reviewAtomicRoleBase=roleSelect.onchange;if(roleSelect&&state.reviewAtomicRoleBase)roleSelect.onchange=event=>{const requested=event.target.value,current=state.role;event.target.value=current;reviewAtomicGuard(topic,()=>{roleSelect.value=requested;state.reviewAtomicRoleBase.call(roleSelect,{target:roleSelect})})};
  $$('[data-review-final-cover-preview]').forEach(button=>button.onclick=()=>{const assetId=button.dataset.reviewFinalCoverPreview,covers=reviewFinalCoverList(assetId);if(!covers.length)return;const removeCover=state.reviewFormalEditing?cover=>openConfirmDialog({title:'移除单张封面',message:`仅解除“${cover.name}”与当前成片的关联，不删除封面文件，也不影响其他成片；保存选题后生效。`,confirmText:'确认移除',danger:true,onConfirm:()=>{state.reviewFinalCovers[assetId]=reviewFinalCoverList(assetId).filter(item=>item.id!==cover.id);reviewAtomicMarkDirty();toast('已移除 1 张封面，保存选题后生效');renderReviewTopicDetail()}}):null;openCoverCarousel(covers,0,{onRemove:removeCover})});
