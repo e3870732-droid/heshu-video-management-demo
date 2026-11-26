@@ -2342,7 +2342,15 @@ function mountParseTaskAction(){
 }
 const reviewHandoffParseRender=openFeishuParseResult;
 openFeishuParseResult=function(...args){reviewHandoffParseRender(...args);parseBatchMount();mountParseTaskAction();if(!state.reviewTaskPreview)return;
- const view=$('#view');view.insertAdjacentHTML('afterbegin','<div class="hint" style="padding:12px 16px;background:#fff">当前为只读查看；未领取任务可点击“确认入库”左侧的“领取”开始处理。</div>');
+ const view=$('#view');
+ const completed=state.reviewTaskReadOnly||reviewTaskRecords().some(task=>task.id===state.reviewActiveTaskId&&task.status==='complete');
+ if(completed){
+  const panel=view.querySelector('.parse-topic-panel');
+  panel?.classList.add('is-task-completed');
+  panel?.querySelectorAll('#addParsedTopic,.topic-select-tools,[data-topic-check],[data-script-check],.parse-topic-actions').forEach(control=>control.remove());
+  const confirm=panel?.querySelector('#batchConfirmTopics');
+  if(confirm){const status=document.createElement('span');status.className='parse-completed-status';status.textContent='已入库';confirm.replaceWith(status)}
+ }else view.insertAdjacentHTML('afterbegin','<div class="hint" style="padding:12px 16px;background:#fff">当前为只读查看；未领取任务可点击“确认入库”左侧的“领取”开始处理。</div>');
  view.querySelectorAll('input,select,textarea,[data-edit-topic],[data-confirm-topic],[data-remove-topic],#addParsedTopic,#batchConfirmTopics,#shootDateInline,[data-add-script-structure],[data-add-script-field],[data-remove-added-script],[data-save-topic]').forEach(control=>control.disabled=true);
 };
 document.addEventListener('click',()=>queueMicrotask(reviewSaveTaskProgress));
@@ -2353,6 +2361,9 @@ window.addEventListener('beforeunload',event=>{if(!parseHasUnsavedChanges())retu
 render();
 </script>
 <style>
+.parse-topic-panel.is-task-completed .parse-topic-item{grid-template-columns:minmax(0,1fr)}
+.parse-topic-panel.is-task-completed .parse-topic-script-list{grid-column:1/-1}
+.parse-completed-status{display:inline-flex;align-items:center;height:28px;padding:0 9px;border:1px solid #cfe8da;border-radius:5px;background:#f2faf6;color:#16845b;font-size:12px;font-weight:600;white-space:nowrap}
 .drawer-form [hidden]{display:none!important}
 .center-mask.open:has(.review-topic-choice-modal){align-items:center;justify-content:center;padding:24px}
 .center-modal.review-topic-choice-modal{width:min(640px,calc(100vw - 48px))!important;min-width:0;height:auto;min-height:0;max-height:min(720px,calc(100vh - 48px));align-self:auto;border-radius:12px;box-shadow:0 22px 60px rgba(29,33,41,.24);animation:none}
