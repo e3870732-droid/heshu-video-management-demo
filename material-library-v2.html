@@ -491,7 +491,7 @@ function reviewRequestTaskAction(taskId,kind,openTask,refresh=renderTasks){
    if(state.reviewActiveTaskId===task.id&&parseHasUnsavedChanges()){toast('请先返回解析结果保存或取消未保存修改，再释放任务',false);return}
    reviewSaveTaskProgress();state.reviewTaskOwners[task.id]={...state.reviewTaskOwners[task.id],status:'start',operator:'',handling:latest.handling};
    if(state.reviewActiveTaskId===task.id)state.reviewTaskPreview=true;
-   addReviewOperation(task.id,'释放任务',[{object:'任务处理权',field:'负责人',before:currentUser,after:'待领取（整理进度保留）'}],currentUser);refresh();toast('任务已释放，其他人可接手');
+   addReviewOperation(task.id,'释放任务',[{object:'任务处理权',field:'负责人',before:currentUser,after:'待领取（整理进度保留）'}],currentUser);if(state.view==='parseResult'){state.parseBatchSelection=[];state.parseAutoSelectedScript=null;returnToReviewTaskCenter()}else refresh();toast('任务已释放，其他人可接手');
   }});
  }
 }
@@ -2365,7 +2365,7 @@ openFeishuParseResult=function(...args){reviewHandoffParseRender(...args);parseB
   panel?.querySelectorAll('#addParsedTopic,.topic-select-tools,[data-topic-check],[data-script-check],.parse-topic-actions').forEach(control=>control.remove());
   const confirm=panel?.querySelector('#batchConfirmTopics');
   if(confirm){const status=document.createElement('span');status.className='parse-completed-status';status.textContent='已入库';confirm.replaceWith(status)}
- }else view.insertAdjacentHTML('afterbegin','<div class="hint" style="padding:12px 16px;background:#fff">当前为只读查看；未领取任务可点击“确认入库”左侧的“领取”开始处理。</div>');
+ }
  view.querySelectorAll('input,select,textarea,[data-edit-topic],[data-confirm-topic],[data-remove-topic],#addParsedTopic,#batchConfirmTopics,#shootDateInline,[data-add-script-structure],[data-add-script-field],[data-remove-added-script],[data-save-topic]').forEach(control=>control.disabled=true);
 };
 document.addEventListener('click',()=>queueMicrotask(reviewSaveTaskProgress));
